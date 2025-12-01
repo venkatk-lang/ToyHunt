@@ -1,5 +1,5 @@
 using UnityEngine;
-[CreateAssetMenu(menuName = "TrainGame/GameConfig")]
+[CreateAssetMenu(menuName = "ToyHunt/GameConfig")]
 public class GameConfig : ScriptableObject
 {
     [Tooltip("Train Speed")]
