@@ -1,17 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
     public WorldGridManager gridManager;
     public RoundGenerator roundGenerator;
 
     public GameState currentState { get; private set; }
 
-    private List<ToyItem> roundItems;
-    private List<string> selectedOrder = new List<string>();
-    private HashSet<string> selectedSet = new HashSet<string>();
+    private List<ToyItem> remainingItems;
+    private HashSet<ToyItem> selectedSet = new HashSet<ToyItem>();
     private ToyItem lastSelected;
     private int currentRound = 1;
     private int maxRounds = 3;
@@ -20,10 +20,6 @@ public class GameManager : MonoBehaviour
     {
         ChangeState(GameState.Init);
     }
-
-    // ---------------------------
-    // CHANGE STATE
-    // ---------------------------
     public void ChangeState(GameState newState)
     {
         currentState = newState;
@@ -39,7 +35,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.WaitForPlayer:
-                // wait for player input via InputManager
+
                 break;
 
             case GameState.End:
@@ -48,23 +44,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ---------------------------
-    // ROUND START
-    // ---------------------------
     private void StartRound()
     {
-        selectedOrder.Clear();
         selectedSet.Clear();
         lastSelected = null;
 
-        roundItems = roundGenerator.BuildRound(currentRound);
-
+        remainingItems = roundGenerator.BuildRound(currentRound, gridManager.rows*gridManager.cols);
+        Debug.Log("Remaining " + remainingItems.Count);
         ChangeState(GameState.SpawnNew);
     }
 
-    // ---------------------------
-    // SPAWN GRID CELLS FOR BOX
-    // ---------------------------
     private void SpawnBox()
     {
         List<ToyItem> boxItems = BuildBoxItems();
@@ -72,10 +61,6 @@ public class GameManager : MonoBehaviour
 
         ChangeState(GameState.WaitForPlayer);
     }
-
-    // ---------------------------
-    // PLAYER CLICK HANDLED FROM INPUT MANAGER
-    // ---------------------------
     public void OnToyCellClicked(ToyCell cell)
     {
         if (currentState != GameState.WaitForPlayer) return;
@@ -83,29 +68,35 @@ public class GameManager : MonoBehaviour
 
         ToyItem toy = cell.Toy;
 
-        // check wrong pick
-        if (selectedSet.Contains(toy.id))
+        if (selectedSet.Contains(toy))
         {
             cell.PlayIncorrect();
             ChangeState(GameState.End);
             return;
         }
 
-        // correct pick
-        cell.PlayCorrect();
-        selectedSet.Add(toy.id);
-        selectedOrder.Add(toy.id);
-        lastSelected = toy;
 
-        // finished?
-        if (selectedSet.Count >= roundItems.Count)
+        cell.PlayCorrect();
+        selectedSet.Add(toy);
+        lastSelected = toy;
+        remainingItems.Remove(toy);
+
+
+        if (remainingItems.Count == 0) 
         {
             ChangeState(GameState.End);
             return;
         }
 
-        // continue
         StartCoroutine(NextSpawnDelay());
+    }
+
+    public bool IsNew(ToyItem boxToys)
+    {
+
+        return !selectedSet.Contains(boxToys);
+           
+        
     }
 
     private IEnumerator NextSpawnDelay()
@@ -114,17 +105,17 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.SpawnNew);
     }
 
-    // ---------------------------
-    // END ROUND HANDLING
-    // ---------------------------
+ 
     private void EndRound()
     {
-        Debug.Log($"Round {currentRound} ended. Score items: {selectedOrder.Count}");
+        Debug.Log($"Round {currentRound} ended. Score items: {selectedSet.Count}");
+
 
         currentRound++;
         if (currentRound > maxRounds)
         {
-            Debug.Log("Game Over");
+            Debug.Log("Game Over - Show Summary screen");
+            //Show Summary screen
             return;
         }
 
@@ -137,38 +128,24 @@ public class GameManager : MonoBehaviour
         ChangeState(GameState.Init);
     }
 
-    // ---------------------------
-    // BOX ITEM GENERATION
-    // ---------------------------
+   
     private List<ToyItem> BuildBoxItems()
     {
         List<ToyItem> result = new List<ToyItem>();
-
-        // Always include last selected
-        if (lastSelected != null)
-            result.Add(lastSelected);
-
-        // Add all previous selected items
-        foreach (var id in selectedSet)
+        foreach (var sToy in selectedSet)
         {
-            ToyItem t = roundItems.Find(x => x.id == id);
-            if (t != null && !result.Contains(t))
-                result.Add(t);
+                result.Add(sToy);
         }
 
-        // Add 3 new items
         int newNeeded = 3;
 
-        foreach (var t in roundItems)
+        foreach (var t in remainingItems)
         {
             if (newNeeded <= 0) break;
-            if (selectedSet.Contains(t.id)) continue;
-            if (result.Contains(t)) continue;
-
             result.Add(t);
             newNeeded--;
         }
-
+       Helpers.ShuffleList(result);
         return result;
     }
 }

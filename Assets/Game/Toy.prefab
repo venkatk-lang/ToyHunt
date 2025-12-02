@@ -69,7 +69,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 1
+  m_Radius: 0.5
 --- !u!114 &7878462531290400343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,6 +83,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToyCell
   iconRenderer: {fileID: 7021992851896237326}
+  col: {fileID: 6484471398906807493}
 --- !u!1 &2245985508892588482
 GameObject:
   m_ObjectHideFlags: 0

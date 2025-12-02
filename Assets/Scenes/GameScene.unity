@@ -433,11 +433,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldGridManager
   rows: 5
   cols: 7
-  cellSize: 1
-  cellSpacing: 0.1
-  gridOffset: {x: 3, y: 3}
-  mainCamera: {fileID: 519420031}
+  boxWidth: 16
+  boxHeight: 8
   toyCellPrefab: {fileID: 7878462531290400343, guid: fdb436618f0bbf046b070bdb6c9472b3, type: 3}
+  mainCamera: {fileID: 519420031}
 --- !u!1 &954804627
 GameObject:
   m_ObjectHideFlags: 0

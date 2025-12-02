@@ -3,10 +3,9 @@ using UnityEngine;
 public class ToyCell : MonoBehaviour
 {
     public SpriteRenderer iconRenderer;
-    public ToyItem Toy { get; private set; }
-    private int index;
+    public ToyItem Toy {  get; private set; }
 
-    public void SetIndex(int idx) => index = idx;
+    [SerializeField] Collider2D col;
 
     public void SetToy(ToyItem t)
     {
@@ -14,14 +13,14 @@ public class ToyCell : MonoBehaviour
 
         iconRenderer.sprite = t != null ? t.sprite : null;
         iconRenderer.enabled = t != null;
-
+        col.enabled = true;
     }
 
     public void Clear()
     {
         Toy = null;
         iconRenderer.enabled = false;
-
+        col.enabled = false;
     }
 
     public void Show()
@@ -29,7 +28,13 @@ public class ToyCell : MonoBehaviour
         gameObject.SetActive(true);
 
     }
+    public void Debug(bool isNew)
+    {
+        Color c = Color.white;
+        c.a = 0.2f;
+        iconRenderer.color = isNew ? Color.white:c;
 
+    }
     public void PlayCorrect()
     {
        

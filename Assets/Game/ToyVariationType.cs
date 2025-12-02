@@ -12,10 +12,8 @@ public enum ToyVariationType
     Ball,
     Animal,
     Instrument,
-    Figure,
     Helicopter,
     Block,
     Puzzle,
 
-    // Add more variations here as needed
 }

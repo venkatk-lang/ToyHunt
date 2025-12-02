@@ -8,12 +8,12 @@ public class RoundGenerator : ScriptableObject
     public ToyDatabase toyDatabase;
 
     System.Random rng = new System.Random();
+    private int requiredCount = 35;
 
-    public List<ToyItem> BuildRound(int roundNumber)
+    public List<ToyItem> BuildRound(int roundNumber,int _requiredCount)
     {
-        // Make sure dictionary exists
+        requiredCount = _requiredCount;
         var groups = toyDatabase.GetDictionary();
-
         List<ToyItem> result = new List<ToyItem>();
 
         if (roundNumber == 1)
@@ -23,79 +23,111 @@ public class RoundGenerator : ScriptableObject
         else
             BuildRoundHard(groups, result);
 
-        return result.Take(35).ToList();
+      
+        Helpers.ShuffleList(result);
+        return result.Take(requiredCount).ToList();
     }
 
-    // ------------------ ROUND 1 ------------------
     private void BuildRoundEasy(Dictionary<ToyVariationType, List<ToyItem>> groups, List<ToyItem> result)
     {
-        // Take 1 unique toy from as many groups as possible
         var keys = groups.Keys.ToList();
-        Shuffle(keys);
+        Helpers.ShuffleList(keys);
 
         foreach (var type in keys)
         {
-            if (result.Count >= 35) break;
+            if (result.Count >= requiredCount) break;
+
             var list = groups[type];
             if (list.Count == 0) continue;
+
+         
             result.Add(list[rng.Next(list.Count)]);
+        }
+
+
+        if (result.Count < requiredCount)
+        {
+            var all = toyDatabase.allToys.ToList();
+            Helpers.ShuffleList(all);
+
+            foreach (var t in all)
+            {
+                if (result.Count >= requiredCount) break;
+                if (!result.Contains(t))
+                    result.Add(t);
+            }
         }
     }
 
-    // ------------------ ROUND 2 ------------------
+
     private void BuildRoundMedium(Dictionary<ToyVariationType, List<ToyItem>> groups, List<ToyItem> result)
     {
         var keys = groups.Keys.ToList();
-        Shuffle(keys);
+        Helpers.ShuffleList(keys);
 
         foreach (var type in keys)
         {
-            if (result.Count >= 35) break;
+            if (result.Count >= requiredCount) break;
 
             var list = groups[type];
             if (list.Count == 0) continue;
 
-            // Always add one
+   
             var first = list[rng.Next(list.Count)];
             result.Add(first);
-
-            // 30% chance add a second variant (pair)
-            if (list.Count > 1 && rng.NextDouble() < 0.30 && result.Count < 35)
+            if (list.Count > 1 && rng.NextDouble() < 0.35 && result.Count < requiredCount)
             {
-                var second = list.FirstOrDefault(t => t != first);
-                if (second != null)
-                    result.Add(second);
+                var variations = list.Where(t => t != first).ToList();
+                if (variations.Count > 0)
+                {
+                    result.Add(variations[rng.Next(variations.Count)]);
+                }
             }
         }
+        FillToMax(result);
     }
 
-    // ------------------ ROUND 3 ------------------
     private void BuildRoundHard(Dictionary<ToyVariationType, List<ToyItem>> groups, List<ToyItem> result)
     {
         var keys = groups.Keys.ToList();
-        Shuffle(keys);
+        Helpers.ShuffleList(keys);
 
         foreach (var type in keys)
         {
-            if (result.Count >= 35) break;
-            var list = groups[type];
-            Shuffle(list);
+            if (result.Count >= requiredCount) break;
 
-            foreach (var toy in list)
+            var list = groups[type];
+            if (list.Count == 0) continue;
+
+            Helpers.ShuffleList(list);
+
+            int clusterSize = Mathf.Clamp(list.Count, 1, rng.Next(2, 5));
+
+            for (int i = 0; i < clusterSize; i++)
             {
-                if (result.Count >= 35) break;
-                result.Add(toy);
+                if (i >= list.Count) break;
+                if (result.Count >= requiredCount) break;
+
+                result.Add(list[i]);
             }
         }
+
+        FillToMax(result);
     }
 
-    // ------------------ SHUFFLE ------------------
-    private void Shuffle<T>(IList<T> list)
+    private void FillToMax(List<ToyItem> result)
     {
-        for (int i = list.Count - 1; i > 0; i--)
+        if (result.Count >= requiredCount)
+            return;
+
+        var all = toyDatabase.allToys.ToList();
+        Helpers.ShuffleList(all);
+
+        foreach (var t in all)
         {
-            int k = rng.Next(i + 1);
-            (list[i], list[k]) = (list[k], list[i]);
+            if (result.Count >= requiredCount) break;
+            if (!result.Contains(t))
+                result.Add(t);
         }
     }
 }
