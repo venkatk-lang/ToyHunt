@@ -25,7 +25,7 @@ public class RoundGenerator : ScriptableObject
 
       
         Helpers.ShuffleList(result);
-        return result.Take(requiredCount).ToList();
+        return result;
     }
 
     private void BuildRoundEasy(Dictionary<ToyVariationType, List<ToyItem>> groups, List<ToyItem> result)
@@ -33,6 +33,7 @@ public class RoundGenerator : ScriptableObject
         var keys = groups.Keys.ToList();
         Helpers.ShuffleList(keys);
 
+        //take one item for each type
         foreach (var type in keys)
         {
             if (result.Count >= requiredCount) break;

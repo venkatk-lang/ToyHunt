@@ -5,7 +5,7 @@ public class InputManager : MonoBehaviour
     public LayerMask toyCellLayer;
     private Camera cam;
     private GameManager gameManager;
-
+    private ToyCell lastHoveredCell;
     private void Awake()
     {
         cam = Camera.main;
@@ -13,6 +13,37 @@ public class InputManager : MonoBehaviour
     }
 
     private void Update()
+    {
+        HandleHover();
+        HandleClick();
+    }
+    void HandleHover()
+    {
+#if UNITY_STANDALONE || UNITY_EDITOR
+        Vector2 worldPos = cam.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero, 0.1f, toyCellLayer);
+
+        ToyCell hitCell = hit.collider ? hit.collider.GetComponent<ToyCell>() : null;
+
+        // if pointer moved off cell
+        if (lastHoveredCell != null && hitCell != lastHoveredCell)
+        {
+            lastHoveredCell.SetHover(false);
+            lastHoveredCell = null;
+        }
+
+        // if hovering a new cell
+        if (hitCell != null && hitCell != lastHoveredCell)
+        {
+            if (hitCell.Toy != null)  // only highlight non-empty
+            {
+                hitCell.SetHover(true);
+                lastHoveredCell = hitCell;
+            }
+        }
+#endif
+    }
+    void HandleClick()
     {
         if (Input.GetMouseButtonDown(0))
             CheckHit(Input.mousePosition);
@@ -22,11 +53,9 @@ public class InputManager : MonoBehaviour
             CheckHit(Input.GetTouch(0).position);
 #endif
     }
-
     void CheckHit(Vector2 screenPos)
     {
         Vector2 worldPos = cam.ScreenToWorldPoint(screenPos);
-
         RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero, 0.1f, toyCellLayer);
 
         if (hit.collider != null)

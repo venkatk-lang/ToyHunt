@@ -1,30 +1,23 @@
+using DG.Tweening;
 using System;
+using System.Collections;
+using UnityEditor.Tilemaps;
 using UnityEngine;
 
 public class BoxController : MonoBehaviour
 {
     public Transform boxRoot;
-    public Vector3 upPosition;
-    public Vector3 downPosition;
-    public float moveTime = 0.4f;
-
-    public void PlayInAnimation(Action onComplete = null)
+    public Vector3 normalPos;
+    public Vector3 outPos;
+    public float moveTime = 1f;
+    public IEnumerator PlayAnimation(Action onOutComplete, Action onComplete)
     {
-        // You can implement tweening here (LeanTween, DOTween) or simple coroutine.
-        StartCoroutine(MoveCoroutine(downPosition, onComplete));
-    }
-
-    private System.Collections.IEnumerator MoveCoroutine(Vector3 target, Action onComplete)
-    {
-        float t = 0f;
-        Vector3 start = boxRoot.localPosition;
-        while (t < moveTime)
-        {
-            t += Time.deltaTime;
-            boxRoot.localPosition = Vector3.Lerp(start, target, t / moveTime);
-            yield return null;
-        }
-        boxRoot.localPosition = target;
-        onComplete?.Invoke();
+        Sequence seq = DOTween.Sequence();
+        seq.Append(boxRoot.DOLocalMove(outPos, 0.5f).SetEase(Ease.InBack));
+        seq.AppendCallback(() => onOutComplete?.Invoke());
+        seq.AppendInterval(1f);
+        seq.Append(boxRoot.DOLocalMove(normalPos, 0.5f).SetEase(Ease.OutBack));
+        seq.AppendCallback(() => onComplete?.Invoke());
+        yield return seq.WaitForCompletion();
     }
 }

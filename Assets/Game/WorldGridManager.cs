@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class WorldGridManager : MonoBehaviour
@@ -13,16 +15,17 @@ public class WorldGridManager : MonoBehaviour
 
     [Header("References")]
     public ToyCell toyCellPrefab;
-    public Camera mainCamera;
 
     private List<ToyCell> cells = new List<ToyCell>();
+    public IReadOnlyList<ToyCell> ActiveCells => cells.Where(t => t.Toy != null).ToList().AsReadOnly();
 
     private float cellSize;
     private float cellSpacing;
 
+    public BoxController box;
+
     private void Awake()
     {
-        if (mainCamera == null) mainCamera = Camera.main;
         CreateGridCells();
     }
 
@@ -30,8 +33,7 @@ public class WorldGridManager : MonoBehaviour
     {
         if (toyCellPrefab == null) return;
 
-        foreach (Transform t in transform)
-            Destroy(t.gameObject);
+        Helpers.DestroyChildren(transform);
         cells.Clear();
 
         float cellW = boxWidth / cols;
@@ -64,7 +66,7 @@ public class WorldGridManager : MonoBehaviour
                     startPos.y - r * (cellSize + cellSpacing)
                 );
 
-                ToyCell newCell = Instantiate(toyCellPrefab, pos, Quaternion.identity, transform);
+                ToyCell newCell = Instantiate(toyCellPrefab, pos, Quaternion.identity, box.transform);
 
                 newCell.transform.localScale = Vector3.one * cellSize;
 
@@ -74,13 +76,11 @@ public class WorldGridManager : MonoBehaviour
         }
     }
 
-
+    Coroutine boxAnimation;
     public void DisplayItems(List<ToyItem> items)
     {
-     
         foreach (var cell in cells)
             cell.Clear();
-
         List<int> availableIndices = new List<int>();
         for (int i = 0; i < cells.Count; i++)
             availableIndices.Add(i);
@@ -97,10 +97,25 @@ public class WorldGridManager : MonoBehaviour
             ToyCell cell = cells[cellIndex];
 
             cell.SetToy(items[i]);
-            cell.Show();
             cell.Debug(GameManager.Instance.IsNew(cell.Toy));
-            
+
         }
     }
-    
+
+    public void AnimateAndDisplay(List<ToyItem> items, Action OnComplete)
+    {
+        boxAnimation = StartCoroutine(box.PlayAnimation(() =>
+        {
+            DisplayItems(items);
+
+        }, () => { OnComplete?.Invoke(); }));
+    }
+
+    private void OnDestroy()
+    {
+        if (boxAnimation != null)
+        {
+            StopCoroutine(boxAnimation);
+        }
+    }
 }
