@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47ffad5c240d7074ba56edbb42ab47fc, type: 3}
+  m_Name: Type_Ball
+  m_EditorClassIdentifier: Assembly-CSharp::ToyType
+  displayName: Ball
+  items:
+  - {fileID: 11400000, guid: 0d7490654f9d01b4091322033520ae68, type: 2}
+  - {fileID: 11400000, guid: c52d77f9aecdbc74ebc92c23be0b5942, type: 2}
+  - {fileID: 11400000, guid: e2f84de53b24d9c46bb4f922c4dc2c5b, type: 2}

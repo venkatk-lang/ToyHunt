@@ -6,5 +6,4 @@ public class ToyItem : ScriptableObject
     public int id;
     public Sprite sprite;
     public Sprite outlineSprite;
-    public ToyVariationType variationType = ToyVariationType.None;
 }

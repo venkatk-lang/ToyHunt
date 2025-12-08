@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6d6d9d9d9d7dbb42815fd34024eca26, type: 3}
+  m_Name: ToyDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::ToyDatabase
+  variationTypes:
+  - {fileID: 11400000, guid: 7c5ee63c7bb127947b701c9fb7df8c5d, type: 2}
+  - {fileID: 11400000, guid: 8109e5af9daf5ba469cfd5b942c2ba37, type: 2}
+  - {fileID: 11400000, guid: 46f769ffed254924db7f36bd3e4c8a7e, type: 2}
+  - {fileID: 11400000, guid: 8c18b6279b51d6a4f93c19c031441b7c, type: 2}
+  - {fileID: 11400000, guid: 85ce0af9617748d498a402e06e3c8f42, type: 2}
+  - {fileID: 11400000, guid: 3286c8f65fb9fef4696cb6c4fdbb671b, type: 2}
+  - {fileID: 11400000, guid: a567a49b9aa6ee64881b2eebec9831cb, type: 2}
+  - {fileID: 11400000, guid: 49adbdeb3db168a44a878d38dee10d8e, type: 2}
+  - {fileID: 11400000, guid: 03ff00a894d215b47ab3a7ababafbbd6, type: 2}
+  - {fileID: 11400000, guid: 9243422f6dda8a94e8d0f5d1280083c5, type: 2}
+  - {fileID: 11400000, guid: 2f96697a570c70142b3d0abeb88bb2e4, type: 2}
+  - {fileID: 11400000, guid: 75e408ebef7f8074a8c7591cefe05178, type: 2}
+  - {fileID: 11400000, guid: 6836fd9d9566bae4fa4098744e288128, type: 2}

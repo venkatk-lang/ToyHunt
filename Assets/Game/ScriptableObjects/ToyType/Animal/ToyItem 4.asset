@@ -15,4 +15,3 @@ MonoBehaviour:
   id: 1
   sprite: {fileID: 21300000, guid: 82a64d0f82b21c044be5cede66116592, type: 3}
   outlineSprite: {fileID: 21300000, guid: 91d470b619bc3e247a1ac775331a0363, type: 3}
-  variationType: 9

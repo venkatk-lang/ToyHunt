@@ -2514,7 +2514,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1108761143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2791,6 +2791,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   gridManager: {fileID: 798232478}
   roundGenerator: {fileID: 11400000, guid: a9cfcd5908b2b934a85f61e97db40b42, type: 2}
+  levelType: {fileID: 11400000, guid: f28e34ec0ccf1c34eba31d86c77e15c2, type: 2}
   transitionController: {fileID: 1246665838}
   roundTransitionSettings: {fileID: 11400000, guid: 057babd6f13132c449650d99e3c4e99c, type: 2}
   stepTransitionSettings: {fileID: 11400000, guid: b577ec7af0d48c34a9d31ce17f830a8d, type: 2}
@@ -3192,7 +3193,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -10
   m_Sprite: {fileID: 21300000, guid: 3efc7a18d674efe45af04a30722ed4ac, type: 3}
-  m_Color: {r: 0.2830189, g: 0.2830189, b: 0.2830189, a: 1}
+  m_Color: {r: 0.7283019, g: 0.7283019, b: 0.7283019, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

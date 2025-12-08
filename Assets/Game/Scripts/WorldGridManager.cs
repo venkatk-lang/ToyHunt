@@ -28,11 +28,13 @@ public class WorldGridManager : MonoBehaviour
     private void Awake()
     {
         gridParent.transform.position = Vector3.zero;
-        CreateGridCells();
+
     }
 
-    private void CreateGridCells()
+    public void CreateGridCells(int levelRows,int levelColumns)
     {
+        rows = levelRows;
+        cols = levelColumns;
         if (toyCellPrefab == null) return;
 
         Helpers.DestroyChildren(transform);

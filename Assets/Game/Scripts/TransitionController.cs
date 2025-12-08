@@ -12,9 +12,13 @@ public class TransitionController : MonoBehaviour
     Coroutine currentTransitionC;
     public void StartTransition(float startDelay, TransitionSettings transitionSettings,Action onBegin,Action onCover,Action onEnd)
     {
-        if (transitionSettings == null || currentTransitionC != null) 
+        if (transitionSettings == null) 
         {
             return;
+        }
+        if(currentTransitionC != null)
+        {
+            StopCoroutine(currentTransitionC);
         }
         currentTransitionC = StartCoroutine(Transition(startDelay, transitionSettings));
         onTransitionBegin += onBegin;

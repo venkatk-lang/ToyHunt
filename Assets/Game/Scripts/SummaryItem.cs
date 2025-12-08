@@ -5,17 +5,21 @@ public class SummaryItem : MonoBehaviour
 {
     [SerializeField] GameObject highlighter;
     [SerializeField] Image itemIcon;
-    float vDelay;
-    public void Setup(Sprite iconSprite,float visualDelay)
+
+    public void Setup(Sprite iconSprite)
     {
         itemIcon.sprite = iconSprite;
         itemIcon.DOFade(0,0);
-        vDelay = visualDelay;
+   
         Highlight(false);
     }
-    public Tween FadeTween()
+    public void FadeTween()
     {
-        return itemIcon.DOFade(1f, 0.5f).SetDelay(vDelay);
+         itemIcon.DOFade(1f, 0.5f);
+    }
+    public void Show()
+    {
+        itemIcon.color = Color.white;
     }
     public void Highlight(bool highlight)
     {

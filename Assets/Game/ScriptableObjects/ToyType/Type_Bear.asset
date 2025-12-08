@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47ffad5c240d7074ba56edbb42ab47fc, type: 3}
+  m_Name: Type_Bear
+  m_EditorClassIdentifier: Assembly-CSharp::ToyType
+  displayName: Bear
+  items:
+  - {fileID: 11400000, guid: 34d0cb733a34f9e498ce1ffafeea6720, type: 2}
+  - {fileID: 11400000, guid: 7f70eb12a92ed2c4babcc50de4a4458a, type: 2}
+  - {fileID: 11400000, guid: 6e09daf70d1b81843929a165a88f9058, type: 2}

@@ -8,6 +8,7 @@ public class GameManager : Singleton<GameManager>
 {
     public WorldGridManager gridManager;
     public RoundGenerator roundGenerator;
+    public LevelType levelType;
 
     private GameState currentState { get; set; }
     public GameState CurrentState => currentState;
@@ -34,7 +35,7 @@ public class GameManager : Singleton<GameManager>
         
         SaveDataHandler.Instance.InitializeSavingSystem();
         UIManager.Instance.Init();
-
+        gridManager.CreateGridCells(levelType.rows, levelType.cols);
     }
     public void ChangeState(GameState newState)
     {
@@ -79,7 +80,7 @@ public class GameManager : Singleton<GameManager>
         UIManager.Instance.gameHUD.ShowRoundStart(currentRound, maxRounds);    
         wrongItem = null;
         lastSelected = null;
-        remainingItems = roundGenerator.BuildRound(currentRound, gridManager.rows*gridManager.cols);
+        remainingItems = roundGenerator.BuildRound(currentRound,levelType);
         Debug.Log("Remaining " + remainingItems.Count);
         transitionController.StartTransition(2f, roundTransitionSettings, null,
       () =>
@@ -87,7 +88,12 @@ public class GameManager : Singleton<GameManager>
           UIManager.Instance.gameHUD.CloseRoundStart();
           ChangeState(GameState.SpawnNew);
 
-      }, ()=>gridManager.ShowAllActiveVisual());
+      }, ()=> 
+      {
+
+          ChangeState(GameState.WaitForPlayer);
+          gridManager.ShowAllActiveVisual();
+      });
        
     }
 
@@ -99,7 +105,6 @@ public class GameManager : Singleton<GameManager>
         {
             gridManager.DisplayItems(boxItems);
 
-            ChangeState(GameState.WaitForPlayer);
             return;
         }
         transitionController.StartTransition(0.4f, stepTransitionSettings,null,
@@ -181,7 +186,7 @@ public class GameManager : Singleton<GameManager>
               () =>
               {
                   ClerFeedback();
-                  UIManager.Instance.gameHUD.ShowRoundSummary(selectedToys, wrongItem.Toy.id, currentRound>maxRounds);
+                  UIManager.Instance.gameHUD.ShowRoundSummary(selectedToys, wrongItem!=null? wrongItem.Toy.id:-1, currentRound>maxRounds);
                   gridManager.ClearAllItems();
               }, () =>
               {
