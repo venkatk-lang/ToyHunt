@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,22 +11,23 @@ public class ToyCell : MonoBehaviour
     [SerializeField] Collider2D col;
     private static readonly Color normalHighlightColor = new Color(0f, 0f, 0f, 0.5f); 
     private static readonly Color activeHighlightColor = new Color(1f, 1f, 1f, 1f);
+    Sequence seq;
+  //  float originalScale;
     public void SetToy(ToyItem t)
     {
-        // change postiion of this object randomlit above its original position
-        //while moving the coontainer, move from that postion to original position.
-
+      //  originalScale = transform.localScale.x;
         Toy = t;
-
-        iconRenderer.sprite = t != null ? t.sprite : null;
-        iconRenderer.gameObject.SetActive(t != null);
-        outlineRenderer.gameObject.SetActive(false);
+        iconRenderer.sprite =  t.sprite;
+        outlineRenderer.sprite = t.outlineSprite;
+        iconRenderer.gameObject.SetActive(true);
+        Highlight(false);
         col.enabled = t != null;
        
     }
 
     public void Clear()
     {
+        seq.Kill();
         Toy = null;
         col.enabled = false;
         iconRenderer.sprite = null;
@@ -51,11 +53,19 @@ public class ToyCell : MonoBehaviour
     }
     public void SetHover(bool state)
     {
-        Highlight(state);
+        if (GameManager.Instance.CurrentState != GameState.WaitForPlayer) return;
+            Highlight(state);
     }
     public void Highlight(bool state)
     {
         outlineRenderer.gameObject.SetActive(true);
         outlineRenderer.color = state ? activeHighlightColor : normalHighlightColor;
+    }
+    public void ActiveVisual()
+    {
+        //shine aniamtion
+        //seq = DOTween.Sequence();
+        //seq.Append(transform.DOScale(originalScale+0.2f, 0.3f).SetEase(Ease.InBack));
+        //seq.Append(transform.DOScale(originalScale, 0.3f).SetEase(Ease.OutBack));
     }
 }

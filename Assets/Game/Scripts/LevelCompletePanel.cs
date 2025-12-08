@@ -2,7 +2,7 @@ using IACGGames;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-namespace TrainGame
+namespace ForestGame
 {
 
     public class LevelCompletePanel : UIPanelBase

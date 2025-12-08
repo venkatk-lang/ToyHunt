@@ -9,9 +9,20 @@ public class InputManager : MonoBehaviour
     private void Awake()
     {
         cam = Camera.main;
-        gameManager = FindObjectOfType<GameManager>();
+
     }
 
+    public void Start()
+    {
+        gameManager = GameManager.Instance;
+        gameManager.OnStateChanged += HandleStateChanged;
+    }
+
+    private void OnDestroy()
+    {
+        if(gameManager  != null)
+        gameManager.OnStateChanged -= HandleStateChanged;
+    }
     private void Update()
     {
         HandleHover();
@@ -19,7 +30,7 @@ public class InputManager : MonoBehaviour
     }
     void HandleHover()
     {
-#if UNITY_STANDALONE || UNITY_EDITOR
+#if UNITY_STANDALONE || UNITY_EDITOR || PLATFORM_WEBGL
         Vector2 worldPos = cam.ScreenToWorldPoint(Input.mousePosition);
         RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero, 0.1f, toyCellLayer);
 
@@ -35,8 +46,10 @@ public class InputManager : MonoBehaviour
         // if hovering a new cell
         if (hitCell != null && hitCell != lastHoveredCell)
         {
+    
             if (hitCell.Toy != null)  // only highlight non-empty
             {
+
                 hitCell.SetHover(true);
                 lastHoveredCell = hitCell;
             }
@@ -48,10 +61,10 @@ public class InputManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
             CheckHit(Input.mousePosition);
 
-#if UNITY_ANDROID || UNITY_IOS
-        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-            CheckHit(Input.GetTouch(0).position);
-#endif
+//#if UNITY_ANDROID || UNITY_IOS
+//        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+//            CheckHit(Input.GetTouch(0).position);
+//#endif
     }
     void CheckHit(Vector2 screenPos)
     {
@@ -66,5 +79,38 @@ public class InputManager : MonoBehaviour
                 gameManager.OnToyCellClicked(cell);
             }
         }
+    }
+
+    //Refresh hover
+    private void HandleStateChanged(GameState state)
+    {
+        Debug.Log("Handle state changed");
+
+        if (state == GameState.WaitForPlayer)
+            RefreshHoverImmediately();
+
+    }
+    public void RefreshHoverImmediately()
+    {
+#if UNITY_STANDALONE || UNITY_EDITOR || PLATFORM_WEBGL
+        Vector2 worldPos = cam.ScreenToWorldPoint(Input.mousePosition);
+        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero, 0.1f, toyCellLayer);
+
+        ToyCell hitCell = hit.collider ? hit.collider.GetComponent<ToyCell>() : null;
+
+        // Clear previous hover
+        if (lastHoveredCell != null && lastHoveredCell != hitCell)
+        {
+            lastHoveredCell.SetHover(false);
+            lastHoveredCell = null;
+        }
+
+        // Apply new hover highlight
+        if (hitCell != null && hitCell.Toy != null)
+        {
+            hitCell.SetHover(true);
+            lastHoveredCell = hitCell;
+        }
+#endif
     }
 }

@@ -3,13 +3,11 @@ using UnityEngine;
 public class GameConfig : ScriptableObject
 {
     [Tooltip("Train Speed")]
-    [SerializeField]private float trainSpeed = 2f;
-    public float TrainSpeed => trainSpeed; 
+    [SerializeField]private int roundBonusScoreMultiplier = 100;
+    public int RoundBonusScoreMultiplier => roundBonusScoreMultiplier; 
     [Header("Score Settings")]
-    [SerializeField] private int singleTrainScore = 100;
-    public int SingleTrainScore => singleTrainScore; 
+    [SerializeField] private int scoreEachCorrect = 500;
+    public int ScoreEachCorrect => scoreEachCorrect; 
 
-    [Header("Game Time")]
-    [SerializeField] private int levelTimeInSec = 120;
-    public int LevelTimeInSec => levelTimeInSec;
+
 }

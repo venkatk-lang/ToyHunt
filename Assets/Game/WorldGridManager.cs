@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Rendering.Universal;
 using UnityEngine;
 
 public class WorldGridManager : MonoBehaviour
@@ -22,10 +23,11 @@ public class WorldGridManager : MonoBehaviour
     private float cellSize;
     private float cellSpacing;
 
-    public BoxController box;
+    public Transform gridParent;
 
     private void Awake()
     {
+        gridParent.transform.position = Vector3.zero;
         CreateGridCells();
     }
 
@@ -66,8 +68,8 @@ public class WorldGridManager : MonoBehaviour
                     startPos.y - r * (cellSize + cellSpacing)
                 );
 
-                ToyCell newCell = Instantiate(toyCellPrefab, pos, Quaternion.identity, box.transform);
-
+                ToyCell newCell = Instantiate(toyCellPrefab, pos, Quaternion.identity, gridParent);
+                newCell.Clear();
                 newCell.transform.localScale = Vector3.one * cellSize;
 
                 cells.Add(newCell);
@@ -76,11 +78,9 @@ public class WorldGridManager : MonoBehaviour
         }
     }
 
-    Coroutine boxAnimation;
     public void DisplayItems(List<ToyItem> items)
     {
-        foreach (var cell in cells)
-            cell.Clear();
+        ClearAllItems();
         List<int> availableIndices = new List<int>();
         for (int i = 0; i < cells.Count; i++)
             availableIndices.Add(i);
@@ -102,20 +102,17 @@ public class WorldGridManager : MonoBehaviour
         }
     }
 
-    public void AnimateAndDisplay(List<ToyItem> items, Action OnComplete)
+    public void ClearAllItems()
     {
-        boxAnimation = StartCoroutine(box.PlayAnimation(() =>
-        {
-            DisplayItems(items);
-
-        }, () => { OnComplete?.Invoke(); }));
+        foreach (var cell in cells)
+            cell.Clear();
     }
-
-    private void OnDestroy()
+    public void ShowAllActiveVisual()
     {
-        if (boxAnimation != null)
+        Debug.Log("Active Visual " + ActiveCells.Count);
+        foreach (var item in ActiveCells)
         {
-            StopCoroutine(boxAnimation);
+            item.ActiveVisual();
         }
     }
 }

@@ -1,47 +1,72 @@
 using EasyTransition;
+using IACGGames;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-
 public class GameManager : Singleton<GameManager>
 {
     public WorldGridManager gridManager;
     public RoundGenerator roundGenerator;
 
-    public GameState currentState { get; private set; }
+    private GameState currentState { get; set; }
+    public GameState CurrentState => currentState;
+    public Action<GameState> OnStateChanged;
 
     private List<ToyItem> remainingItems;
     private HashSet<ToyItem> selectedSet = new HashSet<ToyItem>();
-    private ToyItem lastSelected;
+    public int TotalCorrectItemCount => selectedSet.Count;
+    private ToyCell lastSelected;
     private int currentRound = 1;
+    public int CurrentRound => currentRound;
+ 
     private int maxRounds = 3;
-
+    private int score = 0;
+    public int Score => score;
+    private ToyCell wrongItem;
+    [SerializeField] TransitionController transitionController;
+    [SerializeField] TransitionSettings roundTransitionSettings;
+    [SerializeField] TransitionSettings stepTransitionSettings;
+    [SerializeField] FeedbackPopup feedbackPrefab; 
+    FeedbackPopup currectFeedback; 
     private void Start()
     {
-        ChangeState(GameState.Init);
+        
+        SaveDataHandler.Instance.InitializeSavingSystem();
+        UIManager.Instance.Init();
+
     }
     public void ChangeState(GameState newState)
     {
         currentState = newState;
-
+        OnStateChanged?.Invoke(currentState);
         switch (newState)
         {
             case GameState.Init:
+                //setup
+                currentRound = 1;
+                score = 0;
+                selectedSet.Clear();
+                UIManager.Instance.gameHUD.UpdateScore(score,selectedSet.Count);
+                UIManager.Instance.gameHUD.UpdateRound(currentRound,maxRounds);
+                ChangeState(GameState.StartRound);
+                break;
+            case GameState.StartRound:
+                //show top UI
                 StartRound();
                 break;
-
             case GameState.SpawnNew:
                 SpawnBox();
                 break;
-
             case GameState.WaitForPlayer:
                 break;
-
-            case GameState.End:
+            case GameState.RoundEnd:
                 EndRound();
+                break;
+            case GameState.GameEnd:
+                //This is temporary, we need to implement close game here and submit score
+                UIManager.Instance.Show(UIState.GameHUD, 0.2f);
+                ChangeState(GameState.Init);
                 break;
         }
     }
@@ -49,10 +74,21 @@ public class GameManager : Singleton<GameManager>
     private void StartRound()
     {
         selectedSet.Clear();
+        UIManager.Instance.gameHUD.UpdateRound(currentRound, maxRounds);    
+        UIManager.Instance.gameHUD.UpdateScore(0, selectedSet.Count);    
+        UIManager.Instance.gameHUD.ShowRoundStart(currentRound, maxRounds);    
+        wrongItem = null;
         lastSelected = null;
         remainingItems = roundGenerator.BuildRound(currentRound, gridManager.rows*gridManager.cols);
         Debug.Log("Remaining " + remainingItems.Count);
-        ChangeState(GameState.SpawnNew);
+        transitionController.StartTransition(2f, roundTransitionSettings, null,
+      () =>
+      {
+          UIManager.Instance.gameHUD.CloseRoundStart();
+          ChangeState(GameState.SpawnNew);
+
+      }, ()=>gridManager.ShowAllActiveVisual());
+       
     }
 
     private void SpawnBox()
@@ -62,17 +98,24 @@ public class GameManager : Singleton<GameManager>
         if (lastSelected == null) //its first time spawn in this round , no animation needed
         {
             gridManager.DisplayItems(boxItems);
+
             ChangeState(GameState.WaitForPlayer);
             return;
         }
-        gridManager.AnimateAndDisplay(boxItems, () =>
-        {
-            ChangeState(GameState.WaitForPlayer);
-        });
-
+        transitionController.StartTransition(0.4f, stepTransitionSettings,null,
+            () =>
+            {
+                ClerFeedback();
+                gridManager.DisplayItems(boxItems);
+            }, () => 
+            {
+                gridManager.ShowAllActiveVisual(); 
+                ChangeState(GameState.WaitForPlayer);
+            });
     }
     public void OnToyCellClicked(ToyCell cell)
     {
+
         if (currentState != GameState.WaitForPlayer) return;
         if (cell == null || cell.Toy == null) return;
 
@@ -80,26 +123,29 @@ public class GameManager : Singleton<GameManager>
 
         if (selectedSet.Contains(toy))
         {
+            ShowFeedback(cell.transform.position,false);
+            wrongItem = cell;
             cell.PlayIncorrect();
             HighlightAllCorrectCells();
-            ChangeState(GameState.End);
+            ChangeState(GameState.RoundEnd);
             return;
         }
-
-
+        ShowFeedback(cell.transform.position, true);
         cell.PlayCorrect();
         selectedSet.Add(toy);
-        lastSelected = toy;
+        lastSelected = cell;
         remainingItems.Remove(toy);
+
+
+        score += SaveDataHandler.Instance.GameConfig.ScoreEachCorrect;
+        UIManager.Instance.gameHUD.UpdateScore(score, selectedSet.Count);
 
         if (remainingItems.Count == 0) 
         {
-            ChangeState(GameState.End);
+            ChangeState(GameState.RoundEnd);
             return;
         }
-
-       // StartCoroutine(NextSpawnDelay());
-       StartCoroutine( Transition(0.4f, stepTransitionSettings));
+        ChangeState(GameState.SpawnNew);
     }
     private void HighlightAllCorrectCells()
     {
@@ -115,32 +161,49 @@ public class GameManager : Singleton<GameManager>
     {
         return !selectedSet.Contains(boxToys);
     }
-
-    //private IEnumerator NextSpawnDelay()
-   // {
-       // yield return new WaitForSeconds(0.35f);
-      //  ChangeState(GameState.SpawnNew);
-  //  }
-
- 
+    public int GetRoundBonus()
+    {
+        return SaveDataHandler.Instance.GameConfig.RoundBonusScoreMultiplier * TotalCorrectItemCount * currentRound;
+    }
     private void EndRound()
     {
-        Debug.Log($"Round {currentRound} ended. Score items: {selectedSet.Count}");
+   
+        score += GetRoundBonus();
+
         currentRound++;
-        if (currentRound > maxRounds)
+        //show summary panel
+        List<ToyItem> selectedToys = selectedSet.ToList();
+        if (wrongItem != null)
         {
-            Debug.Log("Game Over - Show Summary screen");
-            return;
+            selectedToys.Add(wrongItem.Toy);
         }
-        StartCoroutine(StartNextRound());
-    }
+        transitionController.StartTransition(0.4f, stepTransitionSettings, null,
+              () =>
+              {
+                  ClerFeedback();
+                  UIManager.Instance.gameHUD.ShowRoundSummary(selectedToys, wrongItem.Toy.id, currentRound>maxRounds);
+                  gridManager.ClearAllItems();
+              }, () =>
+              {
+                  //enable next button, start animation of summary screen
+              });
 
-    private IEnumerator StartNextRound()
+       
+
+    }
+    //Call from summary button
+    public void StartNextRound()
     {
-        yield return new WaitForSeconds(1.0f);
-        ChangeState(GameState.Init);
+        UIManager.Instance.gameHUD.CloseRoundSummary();
+        ChangeState(GameState.StartRound);
+       
     }
+    public void EndGame()
+    {
+        UIManager.Instance.gameHUD.CloseRoundSummary();
+        ChangeState(GameState.GameEnd);
 
+    }
     private List<ToyItem> BuildBoxItems()
     {
         List<ToyItem> result = new List<ToyItem>();
@@ -160,34 +223,15 @@ public class GameManager : Singleton<GameManager>
        Helpers.ShuffleList(result);
         return result;
     }
-    Action onTransitionBegin;
-    Action onTransitionCutPointReached;
-    Action onTransitionEnd;
-    [SerializeField]GameObject transitionTemplate;
-    [SerializeField]TransitionSettings roundTransitionSettings;
-    [SerializeField]TransitionSettings stepTransitionSettings;
-    IEnumerator Transition(float startDelay, TransitionSettings transitionSettings)
+ 
+    public void ShowFeedback(Vector3 pos,bool correct)
     {
-        yield return new WaitForSeconds(startDelay);
-
-        onTransitionBegin?.Invoke();
-
-        GameObject template = Instantiate(transitionTemplate) as GameObject;
-        template.GetComponent<Transition>().transitionSettings = transitionSettings;
-
-        float transitionTime = transitionSettings.transitionTime;
-        if (transitionSettings.autoAdjustTransitionTime)
-            transitionTime = transitionTime / transitionSettings.transitionSpeed;
-
-        yield return new WaitForSeconds(transitionTime);
-
-        onTransitionCutPointReached?.Invoke();
-
-
-        ChangeState(GameState.SpawnNew);
-
-        yield return new WaitForSeconds(transitionSettings.destroyTime);
-
-        onTransitionEnd?.Invoke();
+        currectFeedback = Instantiate(feedbackPrefab);
+        currectFeedback.transform.position = pos;
+        currectFeedback.Show(correct);
+    }
+    private void ClerFeedback()
+    {
+        if (currectFeedback != null) { Destroy(currectFeedback.gameObject); }
     }
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using IACGGames;
-namespace TrainGame
+namespace ForestGame
 {
     public class MainMenu : UIPanelBase
     {
@@ -36,7 +36,8 @@ namespace TrainGame
        
         public void OnPlayButtonPressed()
         {
-           
+            UIManager.Instance.Show(UIState.GameHUD,0.2f);
+            GameManager.Instance.ChangeState(GameState.Init);   
         }
 
         public void OnHowToPlayButtonPressed()

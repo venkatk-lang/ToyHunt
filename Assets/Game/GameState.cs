@@ -1,7 +1,9 @@
 public enum GameState
 {
     Init,
+    StartRound,
     SpawnNew,
     WaitForPlayer,
-    End
+    RoundEnd,
+    GameEnd
 }

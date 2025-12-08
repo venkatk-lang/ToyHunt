@@ -19,5 +19,5 @@ MonoBehaviour:
   maxRotation: {x: 3.6, y: 3.6, z: 3.6}
   minScale: {x: 1.1, y: 1.1, z: 1.1}
   maxScale: {x: 0.9, y: 0.9, z: 0.9}
-  minColorShift: {x: -0.1, y: -0.1, z: -0.1}
-  maxColorShift: {x: 0.1, y: 0.1, z: 0.1}
+  minColorShift: {x: 0, y: 0, z: 0}
+  maxColorShift: {x: 0, y: 0, z: 0}

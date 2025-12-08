@@ -1,24 +1,22 @@
-using DG.Tweening;
-using IACGGames;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-namespace TrainGame
+namespace ForestGame
 {
     public class GameHUD : UIPanelBase
     {
 
         [SerializeField] private TextMeshProUGUI scoreText;
+        [SerializeField] private TextMeshProUGUI roundText;
         [SerializeField] private GameObject topBarGO;
-        [SerializeField] private TextMeshProUGUI trainProgressText;
-        [SerializeField] private TextMeshProUGUI levelText;
-        [SerializeField] private TextMeshProUGUI timeText;
-        [Header("Countdown UI")]
-        public GameObject countdownPanel;
-        public TextMeshProUGUI countdownText;
+        [SerializeField] private TextMeshProUGUI correctText;
+  
         public Button testResetBtn;
-    
 
+        public RoundSummaryPanel roundSummaryPanel;
+        public RoundStartPanel roundStartPanel;
+        public BonusScorePopup bonusScorePopup;
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -35,8 +33,11 @@ namespace TrainGame
         {
             base.Show(animTime);
         
-          //  UpdateHUD(LevelManager.Instance.IsTutorailMode);
-
+           // UpdateHUD(LevelManager.Instance.IsTutorailMode);
+            UpdateHUD(false);
+            CloseRoundSummary();
+            CloseRoundStart();
+            bonusScorePopup.gameObject.SetActive(false);
             ////Testing
             //if (LevelManager.Instance.IsTutorailMode)
             //{
@@ -54,31 +55,60 @@ namespace TrainGame
 
             //    });
             //}
-               
+
 
         }
         public override void Hide(float animTime = 0)
         {
             base.Hide(animTime);
-            //GameManager.Instance.LevelManager.OnCountdownTick -= HandleCountdownTick;
-            //GameManager.Instance.LevelManager.OnTimerTick -= HandleTimerTick;
-        
-       
         }
 
 
-        public void UpdateScore(int totalScore, int correctTrains, int totalTrains)
+        public void UpdateScore(int totalScore, int correctCount)
         {
-            scoreText.text = $"Score: {totalScore}";
-            trainProgressText.text = $"Correct {correctTrains}/{totalTrains}";
-
+            scoreText.text = totalScore.ToString();
+            correctText.text = correctCount.ToString();
+        }
+        public void UpdateRound(int currentRound,int totalRound)
+        {
+            roundText.text = $"FOREST {currentRound} of {totalRound}";
+            
         }
         public void UpdateHUD(bool tutorial)
         {
             topBarGO.gameObject.SetActive(!tutorial);
            
         }
+        public void ShowRoundSummary(List<ToyItem> selectedItems,int wrongItemId,bool lastSummary)
+        {
+            roundSummaryPanel.gameObject.SetActive(true);
+            roundSummaryPanel.Init(selectedItems, wrongItemId,lastSummary);
 
-        
+        }
+        public void ShowBonusScore(int bonusScore)
+        {
+            bonusScorePopup.gameObject.SetActive(true);
+            bonusScorePopup.Show(bonusScore);
+        }
+        public void CloseRoundSummary()
+        {
+            roundSummaryPanel.gameObject.SetActive(false);
+        }
+        public void ShowRoundStart(int round,int maxRound)
+        {
+            roundStartPanel.gameObject.SetActive(true);
+            roundStartPanel.Show(round, maxRound);
+
+        }
+
+        public void CloseRoundStart()
+        {
+            roundStartPanel.gameObject.SetActive(false);
+        }
+
+        public void ShowFinalSummary(int totalScore)
+        {
+            // Show final screen
+        }
     }
 }
