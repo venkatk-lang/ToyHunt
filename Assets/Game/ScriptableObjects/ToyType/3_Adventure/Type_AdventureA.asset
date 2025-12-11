@@ -10,17 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47ffad5c240d7074ba56edbb42ab47fc, type: 3}
-  m_Name: Type_Adventure
+  m_Name: Type_AdventureA
   m_EditorClassIdentifier: Assembly-CSharp::ToyType
-  displayName: Adventure
+  displayName: AdventureA
   items:
   - {fileID: 11400000, guid: d34d2ba815fe2b94785864b7c443a460, type: 2}
   - {fileID: 11400000, guid: c3483c743c6efcc4b8bab1ca326da68c, type: 2}
   - {fileID: 11400000, guid: a1e04c281ecddbc41838dc8266aacfd9, type: 2}
-  - {fileID: 11400000, guid: d4f60b4a64be5b9408fc3a1c0b624e7b, type: 2}
-  - {fileID: 11400000, guid: 94cde30d8086d87428b20d2271055bc0, type: 2}
-  - {fileID: 11400000, guid: 4b91f78397704654d8f50eb7590ba0a5, type: 2}
-  - {fileID: 11400000, guid: e584b283ab3da5346af43d0c079db0ba, type: 2}
-  - {fileID: 11400000, guid: 8038140c50f9dd34a9581071d4ef13c4, type: 2}
-  - {fileID: 11400000, guid: 9efb6fa6f7d9afd489a35a11c92b44b7, type: 2}
   - {fileID: 11400000, guid: d0b6df25ea0d1a349a8c22e20fe7577b, type: 2}

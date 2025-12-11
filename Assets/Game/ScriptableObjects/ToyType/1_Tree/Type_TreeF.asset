@@ -10,12 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47ffad5c240d7074ba56edbb42ab47fc, type: 3}
-  m_Name: Type_Mushroom
+  m_Name: Type_TreeF
   m_EditorClassIdentifier: Assembly-CSharp::ToyType
-  displayName: Mushroom
+  displayName: TreeF
   items:
-  - {fileID: 11400000, guid: 98ab785f5d06dff4e9a7707a12721b41, type: 2}
-  - {fileID: 11400000, guid: 5c3f88f26d058ec45bd808a2753727e6, type: 2}
-  - {fileID: 11400000, guid: 364f289785f43fd43bff905aa84a43be, type: 2}
-  - {fileID: 11400000, guid: 8fc1df87ece563f45bbbf09aa81e6a99, type: 2}
-  - {fileID: 11400000, guid: 6f46047d799b5d64f888eab5b11974cd, type: 2}
+  - {fileID: 11400000, guid: b0e87325e3d554b439dd740ba1faf4a4, type: 2}
+  - {fileID: 11400000, guid: b2e381d4da9c00640a8472ec8a3af2e9, type: 2}
+  - {fileID: 11400000, guid: f3e99efae4d879e4f847c1ae19c71760, type: 2}

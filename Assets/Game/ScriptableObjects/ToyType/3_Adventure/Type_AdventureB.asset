@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47ffad5c240d7074ba56edbb42ab47fc, type: 3}
+  m_Name: Type_AdventureB
+  m_EditorClassIdentifier: Assembly-CSharp::ToyType
+  displayName: AdventureB
+  items:
+  - {fileID: 11400000, guid: d4f60b4a64be5b9408fc3a1c0b624e7b, type: 2}
+  - {fileID: 11400000, guid: 94cde30d8086d87428b20d2271055bc0, type: 2}
+  - {fileID: 11400000, guid: 4b91f78397704654d8f50eb7590ba0a5, type: 2}
+  - {fileID: 11400000, guid: 9efb6fa6f7d9afd489a35a11c92b44b7, type: 2}

@@ -57,44 +57,68 @@ public class RoundGenerator : ScriptableObject
             result.Add(all[i]);
     }
 
-    // --------------------------------------
-    // MEDIUM/HARD — DUPLICATE TYPE CHANCE
-    // --------------------------------------
+    // -------------------------------------
+    // MEDIUM / HARD - DUPLICATE CHANCE
+    // -------------------------------------
     private void BuildWithDuplicateChance(
         List<ToyType> types,
         List<ToyItem> result,
         int needed,
         float duplicateChance)
     {
+        // First pass: select 1 item per type + duplicate chance
         foreach (var type in types)
         {
-            if (result.Count >= needed) break;
-            if (type.items == null || type.items.Count == 0) continue;
+            if (result.Count >= needed)
+                break;
 
-            // Always pick one item
+            if (type.items == null || type.items.Count == 0)
+                continue;
+
+            // Always pick one
             ToyItem first = type.items[rng.Next(type.items.Count)];
             result.Add(first);
 
-            if (result.Count >= needed) break;
+            if (result.Count >= needed)
+                break;
 
-            // Chance to pick a second item from SAME type
-            if (rng.NextDouble() < duplicateChance)
+            // Duplicate chance: pick another item from SAME TYPE
+            if (type.items.Count > 1 && rng.NextDouble() < duplicateChance)
             {
-                if (type.items.Count > 1)
+                ToyItem second;
+
+                do
                 {
-                    ToyItem second;
-
-                    // Make sure second != first
-                    do
-                    {
-                        second = type.items[rng.Next(type.items.Count)];
-                    }
-                    while (second == first);
-
-                    result.Add(second);
-
-                    if (result.Count >= needed) break;
+                    second = type.items[rng.Next(type.items.Count)];
                 }
+                while (second == first);
+
+                result.Add(second);
+
+                if (result.Count >= needed)
+                    break;
+            }
+        }
+
+        // ----------------------------------------------------
+        // SECOND PASS: If still not enough items, fill randomly
+        // from the entire database
+        // ----------------------------------------------------
+        if (result.Count < needed)
+        {
+            List<ToyItem> all = new List<ToyItem>();
+            foreach (var t in types)
+                if (t.items != null)
+                    all.AddRange(t.items);
+
+            Helpers.ShuffleList(all);
+
+            int index = 0;
+
+            while (result.Count < needed && index < all.Count)
+            {
+                result.Add(all[index]);
+                index++;
             }
         }
     }
