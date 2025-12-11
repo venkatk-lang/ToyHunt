@@ -58,6 +58,8 @@ namespace EasyTransition
                         parentImage.material = additiveColorMaterial;
                         parentImage.material.SetColor("_Color", transitionSettings.colorTint);
                     }
+
+                  // parentImage.color = transitionSettings.colorTint;
                 }
                 for (int i = 0; i < transitionIn.transform.childCount; i++)
                 {

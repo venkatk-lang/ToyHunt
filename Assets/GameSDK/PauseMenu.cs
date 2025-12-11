@@ -1,63 +1,112 @@
 using UnityEngine;
 using UnityEngine.UI;
-namespace IACGGames
+using IACGGames;
+
+public class PauseMenu : MonoBehaviour
 {
+    [Header("Buttons")]
+    public Button resumeButton;
+    public Button restartButton;
+    public Button tutorialButton;
+    public Button quitButton;
 
-    public class PauseMenu : MonoBehaviour
+    [Header("Sliders")]
+    public Slider sfxSlider;
+    public Slider musicSlider;
+    private bool initialized = false;
+    private void OnEnable()
     {
-        [Header("Buttons")]
-        public Button resumeButton;
-        public Button restartButton;
-        public Button quitButton;
+        resumeButton.onClick.AddListener(OnResumeClicked);
+        restartButton.onClick.AddListener(OnRestartClicked);
+        tutorialButton.onClick.AddListener(OnTutorialClicked);
+        quitButton.onClick.AddListener(OnQuitClicked);
 
-        [Header("Audio Toggles")]
-        public Toggle musicToggle;
-        public Toggle sfxToggle;
+        sfxSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
+        musicSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
 
-        private void Start()
-        {
-            // Hook up button events
-            if (resumeButton) resumeButton.onClick.AddListener(OnResume);
-            if (restartButton) restartButton.onClick.AddListener(OnRestart);
-            if (quitButton) quitButton.onClick.AddListener(OnQuit);
-
-            // Hook toggles
-            if (musicToggle) musicToggle.onValueChanged.AddListener(OnMusicToggleChange);
-            if (sfxToggle) sfxToggle.onValueChanged.AddListener(OnSfxToggleChange);
-
-            // Sync UI state from AudioManager settings
-            //if (musicToggle && AudioSystem.Instance)
-            //    musicToggle.isOn = !AudioSystem.Instance.GetMusicMuted();
-
-            //if (sfxToggle && AudioSystem.Instance)
-            //    sfxToggle.isOn = !AudioSystem.Instance.GetSfxMuted();
-
-
-        }
-
-        public void OnResume()
-        {
-            GameSDKSystem.Instance.ResumeGame();
-        }
-
-        public void OnRestart()
-        {
-            GameSDKSystem.Instance.RestartGame();
-        }
-
-        public void OnQuit()
-        {
-            GameSDKSystem.Instance.QuitGame();
-        }
-
-        public void OnMusicToggleChange(bool isOn)
-        {
-            // AudioSystem.Instance.ToggleMusic(isOn);
-        }
-
-        public void OnSfxToggleChange(bool isOn)
-        {
-            // AudioSystem.Instance.ToggleSFX(isOn);
-        }
+     
     }
+    private void OnDisable()
+    {
+        resumeButton.onClick.RemoveAllListeners();
+        restartButton.onClick.RemoveAllListeners();
+        tutorialButton.onClick.RemoveAllListeners();
+        quitButton.onClick.RemoveAllListeners();
+
+        sfxSlider.onValueChanged.RemoveAllListeners();
+        musicSlider.onValueChanged.RemoveAllListeners();
+    }
+    private void Start()
+    {
+        LoadSavedValues();
+        initialized = true;
+    }
+
+   
+    private void LoadSavedValues()
+    {
+        float sfxVal = SaveDataHandler.Instance.InGameSoundFXValue;
+        float bgmVal = SaveDataHandler.Instance.BgSoundValue;
+
+        sfxSlider.value = sfxVal;
+        musicSlider.value = bgmVal;
+
+        AudioManager.Instance.SetSFXVolume(sfxVal);
+        AudioManager.Instance.SetBGMVolume(bgmVal);
+    }
+    // ---------------------------
+    // Button Actions
+    // ---------------------------
+
+    private void OnResumeClicked()
+    {
+        GameSDKSystem.Instance.ResumeGame();
+        Show(false);
+    }
+    private void OnQuitClicked()
+    {
+        GameSDKSystem.Instance.QuitGame();
+    }
+    private void OnRestartClicked()
+    {
+        GameSDKSystem.Instance.RestartGame();
+        Show(false);
+    }
+
+    private void OnTutorialClicked()
+    {
+        // Show Tutorail
+        GameSDKSystem.Instance.StartTutorail();
+        Show(false);
+    }
+
+    // ---------------------------
+    // Volume Sliders
+    // ---------------------------
+
+    private void OnSFXVolumeChanged(float value)
+    {
+        AudioManager.Instance.SetSFXVolume(value);
+        SaveDataHandler.Instance.InGameSoundFXValue = value;
+        SaveDataHandler.Instance.WriteDataToSaveFile(SaveDataFiles.SaveData);
+
+    }
+
+    private void OnMusicVolumeChanged(float value)
+    {
+        AudioManager.Instance.SetBGMVolume(value);
+        SaveDataHandler.Instance.BgSoundValue = value;
+        SaveDataHandler.Instance.WriteDataToSaveFile(SaveDataFiles.SaveData);
+
+    }
+
+    // ---------------------------
+    // Show / Hide
+    // ---------------------------
+
+    public void Show(bool show) 
+    {
+        gameObject.SetActive(show);
+    } 
+  
 }

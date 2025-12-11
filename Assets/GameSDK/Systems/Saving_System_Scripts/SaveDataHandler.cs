@@ -24,13 +24,11 @@ namespace IACGGames
             newUser = false;
             if (File.Exists(SaveFileExtension.saveDataPath))
             {
-               // Debug.Log("Load Data");
                 ReadDateFromSaveFiles(SaveDataFiles.SaveData);
                 LoadData();
             }
             else
             {
-              //  Debug.Log("Init Save Data");
                 InitializeDataForFirstTime();
                 WriteDataToSaveFile(SaveDataFiles.SaveData);
                 newUser = true;
@@ -114,28 +112,6 @@ namespace IACGGames
             set
             {
                 saveData.vibrationOn = value;
-            }
-        }
-        public bool InGameSoundFXOn
-        {
-            get
-            {
-                return saveData.inGameSoundFXOn;
-            }
-            set
-            {
-                saveData.inGameSoundFXOn = value;
-            }
-        }
-        public bool BGSoundOn
-        {
-            get
-            {
-                return saveData.bgSoundOn;
-            }
-            set
-            {
-                saveData.bgSoundOn = value;
             }
         }
         public float BgSoundValue

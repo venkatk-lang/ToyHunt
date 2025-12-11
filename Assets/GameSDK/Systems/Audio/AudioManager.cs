@@ -1,263 +1,207 @@
-﻿using UnityEngine;
-using System;
-using UnityEngine.Audio;
+﻿using DG.Tweening;
+using IACGGames;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+public class AudioManager : Singleton<AudioManager>
+{
+    [Header("Audio Library")]
+    public AudioLibrary audioLibrary;
 
-    public class AudioManager : Singleton<AudioManager>
+    private Dictionary<SFXAudioID, SFXAudio> sfxLookup;
+    private Dictionary<SFXAudioID, AudioSource> sfxSourceLookup;
+
+    [Header("BGM Settings")]
+    public AudioSource bgmSourcePrefab;
+    private AudioSource bGMAudioSource;
+    public float fadeDuration = 1f;
+    private float originalBGMVolume;
+    private bool isPlayingQueue = false;
+    private int currentBGMIndex = 0;
+    private List<AudioClip> BGMPlaylist = new List<AudioClip>();
+    private Dictionary<BGMAudioID, BGMAudio> bgmLookup;
+
+    [Header("SFX Settings")]
+    public AudioSource sfxSourcePrefab;
+
+
+    protected override void Awake()
     {
-        public AudioMixer inGameMixer;
-        public AudioMixer bgMixer;
-        public AudioSource trainMoveAudioSource;
+        base.Awake();
 
-        [System.Serializable]
-        public class Sound
+        // Build lookups from the ScriptableObject library
+        sfxLookup = new Dictionary<SFXAudioID, SFXAudio>();
+        sfxSourceLookup = new Dictionary<SFXAudioID, AudioSource>();
+        bgmLookup = new Dictionary<BGMAudioID, BGMAudio>();
+
+        BuildSFXMap();
+        BuildBGMMap();
+        SetupBGMPlayer();
+
+    }
+    public void Initialize()
+    {
+        //setup sound volume as per save data 
+        ApplySavedVolumes();
+
+
+    }
+    // ---------------------------------------------------------
+    // INITIALIZATION HELPERS
+    // ---------------------------------------------------------
+    private void BuildSFXMap()
+    {
+        foreach (var e in audioLibrary.sfxEntries)
         {
-            public string name;
-            public AudioSource audioSource;
-            public void Play()
-            {
-                audioSource.Play();
-            }
+            sfxLookup[e.id] = e;
 
-            public void Stop()
-            {
-                if (audioSource != null && audioSource.isPlaying)
-                {
-                    audioSource.Stop();
-                }
-            }
-            public void StopImmidiate()
-            {
-                if (audioSource != null)
-                {
-                    audioSource.Stop();
-                }
-            }
+            // Create dedicated AudioSource
+            AudioSource src = Instantiate(sfxSourcePrefab, transform);
+            src.clip = e.clip;
+            src.volume = e.volume;
+            src.outputAudioMixerGroup = audioLibrary.sfxAudioMixerGroup;
+            src.spatialBlend = 0f; // SFX = 2D
+
+            src.gameObject.name = "SFX_" + e.id;
+            sfxSourceLookup[e.id] = src;
         }
+    }
 
-        public Sound[] fxSounds;
+    private void BuildBGMMap()
+    {
+        foreach (var e in audioLibrary.bgmEntries)
+            bgmLookup[e.id] = e;
+    }
 
-        #region Unity Calls
-        public void Initialize()
+    private void SetupBGMPlayer()
+    {
+        bGMAudioSource = Instantiate(bgmSourcePrefab, transform);
+        bGMAudioSource.loop = true;
+        bGMAudioSource.spatialBlend = 0f;
+        bGMAudioSource.outputAudioMixerGroup = audioLibrary.bgmAudioMixerGroup;
+
+        originalBGMVolume = bGMAudioSource.volume;
+        bGMAudioSource.gameObject.name = "BGM_Player";
+    }
+    // -----------------------------
+    // PLAY AUDIO BY ID
+    // -----------------------------
+    public void PlaySFX(SFXAudioID id)
+    {
+        if (!sfxSourceLookup.TryGetValue(id, out var src)) return;
+        src.Play();
+    }
+
+    public void PlaySFX(SFXAudioID id, float pitchMin, float pitchMax)
+    {
+        if (!sfxSourceLookup.TryGetValue(id, out var src)) return;
+
+        src.pitch = Random.Range(pitchMin, pitchMax);
+        src.Play();
+    }
+
+    #region BGM
+    //Play Single BGM and Crossfade if fade = true
+    public void PlayBGM(BGMAudioID id, bool fade = true)
+    {
+        if (!bgmLookup.TryGetValue(id, out var data)) return;
+
+        StopBGMQueue(false);
+        StartCoroutine(PlayBGMAsync(data.clip, fade));
+    }
+
+    // Play the playlist in loop
+    public void PlayBGMQueue(bool fade = true)
+    {
+        if (BGMPlaylist.Count == 0 || isPlayingQueue) return;
+
+        isPlayingQueue = true;
+        currentBGMIndex = 0;
+
+        StartCoroutine(PlayBGMQueueCoroutine(fade));
+    }
+    //Stop the playlist
+    public void StopBGMQueue(bool fade = true)
+    {
+        if (!isPlayingQueue) return;
+
+        isPlayingQueue = false;
+        StartCoroutine(StopBGMAsync(fade));
+    }
+
+    private IEnumerator PlayBGMQueueCoroutine(bool fade)
+    {
+        while (isPlayingQueue && BGMPlaylist.Count > 0)
         {
-           // bgMixer.SetFloat("Val", SaveDataHandler.Instance.BgSoundValue);
-          //  inGameMixer.SetFloat("Val", SaveDataHandler.Instance.InGameSoundFXValue);
+            AudioClip next = BGMPlaylist[currentBGMIndex];
+            yield return PlayBGMAsync(next, fade);
 
-        }
-        protected override void Awake()
-        {
-            base.Awake();
-            for (int i = 0; i < initialSize; i++)
-            {
-                AddNewSource();
-            }
+            // Wait until clip fully finishes
+            yield return new WaitUntil(() => !bGMAudioSource.isPlaying || !isPlayingQueue);
 
+            if (!isPlayingQueue) yield break;
 
+            currentBGMIndex = (currentBGMIndex + 1) % BGMPlaylist.Count;
         }
-        private void Start()
-        {
-            Initialize();
-        }
+    }
+
+    private IEnumerator PlayBGMAsync(AudioClip clip, bool fade)
+    {
+        if (fade)
+            yield return bGMAudioSource.DOFade(0f, fadeDuration).WaitForCompletion();
+
+        bGMAudioSource.clip = clip;
+        bGMAudioSource.Play();
+
+        if (fade)
+            yield return bGMAudioSource.DOFade(originalBGMVolume, fadeDuration).WaitForCompletion();
+    }
+
+    private IEnumerator StopBGMAsync(bool fade)
+    {
+        if (fade)
+            yield return bGMAudioSource.DOFade(0f, fadeDuration).WaitForCompletion();
+
+        bGMAudioSource.Stop();
+        bGMAudioSource.clip = null;
+    }
     #endregion
 
-    private AudioSource GetAudioSource(string name)
+    #region Settings
+    public void SetSFXVolume(float vol)
     {
-        Sound sound = Array.Find(fxSounds, s => s.name == name);
-        if (sound == null) return null;
-
-        if (sound.audioSource == null)
-        {
-            Transform _tempTransform = transform.Find(name);
-            if (_tempTransform)
-            {
-                sound.audioSource = _tempTransform.GetComponent<AudioSource>();
-            }
-        }
-
-        return sound.audioSource;
-
+        float db = VolumeToDecibels(vol);
+        audioLibrary.sfxAudioMixerGroup.audioMixer.SetFloat("SFX_Val", db);
+        SaveDataHandler.Instance.InGameSoundFXValue = vol;
+        SaveDataHandler.Instance.WriteDataToSaveFile(SaveDataFiles.SaveData);
     }
-        public void PlaySound(string name)
-        {
-            GetAudioSource(name).Play();
-        }
-    public void PlaySound(string name,float minPitch,float maxPitch)
+
+    public void SetBGMVolume(float vol)
     {
-        AudioSource audioS = GetAudioSource(name);
-        audioS.pitch = UnityEngine.Random.Range(minPitch, maxPitch);
-        audioS.Play();
+        float db = VolumeToDecibels(vol);
+        audioLibrary.bgmAudioMixerGroup.audioMixer.SetFloat("BGM_Val", db);
+        SaveDataHandler.Instance.BgSoundValue = vol;
+        SaveDataHandler.Instance.WriteDataToSaveFile(SaveDataFiles.SaveData);
     }
-    public void StopSound(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                return;
-            }
 
-            Sound sound = Array.Find(fxSounds, s => s.name == name);
-            if (sound != null)
-            {
-                if (sound.audioSource == null)
-                {
-                    Transform _tempTransform = transform.Find(name);
-                    if (_tempTransform)
-                    {
-                        sound.audioSource = _tempTransform.GetComponent<AudioSource>();
-                    }
-                }
+    private BGMAudio FindCurrentBGMEntry()
+    {
+        foreach (var e in audioLibrary.bgmEntries)
+            if (bGMAudioSource.clip == e.clip)
+                return e;
 
-                //sound.Stop();
-                sound.StopImmidiate();
-            }
-            else
-            {
-                Debug.LogWarning("AudioManager -- Sound not found:" + name);
-            }
-        }
-
-        public void StopAllSounds()
-        {
-            foreach (var item in fxSounds)
-            {
-                item.audioSource.Stop();
-            }
-        }
-
-        public void PauseSound(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                return;
-            }
-
-            Sound sound = Array.Find(fxSounds, s => s.name == name);
-            if (sound != null)
-            {
-                if (sound.audioSource == null)
-                {
-                    Transform _tempTransform = transform.Find(name);
-                    if (_tempTransform)
-                    {
-                        sound.audioSource = _tempTransform.GetComponent<AudioSource>();
-                    }
-                }
-
-                //sound.Stop();
-
-                sound.audioSource.Pause();
-
-            }
-            else
-            {
-                Debug.LogWarning("AudioManager -- Sound not found:" + name);
-            }
-        }
-        public void UnPauseSound(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                return;
-            }
-
-            Sound sound = Array.Find(fxSounds, s => s.name == name);
-            if (sound != null)
-            {
-                if (sound.audioSource == null)
-                {
-                    Transform _tempTransform = transform.Find(name);
-                    if (_tempTransform)
-                    {
-                        sound.audioSource = _tempTransform.GetComponent<AudioSource>();
-                    }
-                }
-
-                //sound.Stop();
-
-                sound.audioSource.UnPause();
-            }
-            else
-            {
-                Debug.LogWarning("AudioManager -- Sound not found:" + name);
-            }
-        }
-        Coroutine callerCoroutine;
-        public void PlayCallerAudio(AudioClip characterClip,AudioClip numberClip)
-        {
-            if(callerCoroutine != null) StopCoroutine(callerCoroutine);
-            callerCoroutine = StartCoroutine(PlaySequence(characterClip, numberClip));
-        }
-
-        private IEnumerator PlaySequence(AudioClip characterClip, AudioClip numberClip)
-        {
-            trainMoveAudioSource.clip = characterClip;
-            trainMoveAudioSource.Play();
-            yield return new WaitForSeconds(characterClip.length);
-            trainMoveAudioSource.clip = numberClip;
-            trainMoveAudioSource.Play();
-            callerCoroutine = null;
-        }
-        
-        public void PlayTrainSound()
-        {
-            
-            trainMoveAudioSource.Play();
-            UpdateTrainSoundVolume(0f);
-        }
-    public void UpdateTrainSoundVolume(float v)
-        {
-            trainMoveAudioSource.volume = v;
+        return null;
     }
-    public void StopTrainSound()
-        {
-      
-            trainMoveAudioSource.Stop();
-        }
-    public void PlayPatternSound(float pitch)
-        {
-            var source = GetAvailableSource();
-            source.pitch = pitch;
-            source.gameObject.SetActive(true);
-            source.Play();
 
-            StartCoroutine(DisableAfterPlaying(source));
-        }
-
-        private IEnumerator DisableAfterPlaying(AudioSource source)
-        {
-            yield return new WaitWhile(() => source.isPlaying);
-            source.gameObject.SetActive(false);
-        }
-
-        #region AudioSourcePool
-        [SerializeField] private AudioSource audioSourcePrefab;
-        [SerializeField] private int initialSize = 5;
-
-        private List<AudioSource> pool = new List<AudioSource>();
-
-       
-        private AudioSource AddNewSource()
-        {
-            if (audioSourcePrefab == null) return null;
-     
-        var source = Instantiate(audioSourcePrefab, transform);
-            source.gameObject.SetActive(false);
-            pool.Add(source);
-            return source;
-        }
-
-        public AudioSource GetAvailableSource()
-        {
-            foreach (var source in pool)
-            {
-                if (!source.isPlaying)
-                {
-                    return source;
-                }
-            }
-
-
-            return AddNewSource();
-        }
-        #endregion
+    // Convert 0–1 to decibels
+    private float VolumeToDecibels(float value)
+    {
+        return Mathf.Log10(Mathf.Clamp(value, 0.0001f, 1f)) * 20f;
     }
+    private void ApplySavedVolumes()
+    {
+        SetSFXVolume(SaveDataHandler.Instance.InGameSoundFXValue);
+        SetBGMVolume(SaveDataHandler.Instance.BgSoundValue);
+    }
+    #endregion
+}
