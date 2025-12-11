@@ -1,4 +1,4 @@
-using UnityEngine;
+    using UnityEngine;
 
 [CreateAssetMenu(fileName = "ToyItem", menuName = "ToyHunt/ToyItem")]
 public class ToyItem : ScriptableObject

@@ -15,7 +15,7 @@ public class SummaryItem : MonoBehaviour
     }
     public void FadeTween()
     {
-         itemIcon.DOFade(1f, 0.5f);
+         itemIcon.DOFade(1f, 0.4f);
     }
     public void Show()
     {

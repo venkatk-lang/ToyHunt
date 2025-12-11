@@ -35,7 +35,10 @@ public enum SFXAudioID
     Erase,
     PageIn,
     PageOut,
-    Hover
+    Hover,
+    SummaryItem,
+    WrongSummaryItem,
+    Bonus
 }
 [System.Serializable]
 public class BGMAudio

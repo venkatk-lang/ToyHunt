@@ -55,16 +55,19 @@ public class RoundSummaryPanel : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             Debug.Log("wait");
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.2f);
             Debug.Log("fade");
+            AudioManager.Instance.PlaySFX(SFXAudioID.SummaryItem,0.8f,1.2f);
             summaryItems[i].FadeTween();
         }
         yield return new WaitForSeconds(0.5f);
         foreach (SummaryItem item in wrongItems)
         {
+            AudioManager.Instance.PlaySFX(SFXAudioID.WrongSummaryItem);
             item.Highlight(true);
         }
         yield return new WaitForSeconds(0.5f);
+        AudioManager.Instance.PlaySFX(SFXAudioID.Bonus);
         UIManager.Instance.gameHUD.ShowBonusScore(GameManager.Instance.GetRoundBonus());
         panelAnimationC = null;
     }

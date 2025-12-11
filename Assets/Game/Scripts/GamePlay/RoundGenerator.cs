@@ -10,78 +10,104 @@ public class RoundGenerator : ScriptableObject
 
     public List<ToyItem> BuildRound(int roundNumber, LevelType levelType)
     {
-        int requiredCount = levelType.rows*levelType.cols;
+        int required = levelType.rows * levelType.cols;
+
+        // Clone and shuffle types
         List<ToyType> types = new List<ToyType>(levelType.toyDatabase.variationTypes);
         Helpers.ShuffleList(types);
 
         List<ToyItem> result = new List<ToyItem>();
 
-        if (roundNumber == 1)
-            BuildRoundEasy(types, result, requiredCount);
-        else if (roundNumber == 2)
-            BuildRoundMedium(types, result, requiredCount);
-        else
-            BuildRoundHard(types, result, requiredCount);
-
-        Helpers.ShuffleList(result);
-
-        return result.GetRange(0, Mathf.Min(result.Count, requiredCount));
-    }
-    public List<ToyItem> BuildTutorialRound(LevelType levelType,int requiredCount)
-    {
-        
-        List<ToyType> types = new List<ToyType>(levelType.toyDatabase.variationTypes);
-        Helpers.ShuffleList(types);
-        List<ToyItem> result = new List<ToyItem>();
-        BuildRoundEasy(types, result, requiredCount);
-        Helpers.ShuffleList(result);
-
-        return result.GetRange(0, Mathf.Min(result.Count, requiredCount));
-    }
-    private void BuildRoundEasy(List<ToyType> types, List<ToyItem> result, int needed)
-    {
-        foreach (var type in types)
+        switch (roundNumber)
         {
-            if (result.Count >= needed) break;
-            if (type.items.Count == 0) continue;
+            case 1:
+                BuildEasy(types, result, required);
+                break;
 
-            result.Add(type.items[rng.Next(type.items.Count)]);
+            case 2:
+                BuildWithDuplicateChance(types, result, required, 0.30f);
+                break;
+
+            case 3:
+            default:
+                BuildWithDuplicateChance(types, result, required, 0.50f);
+                break;
         }
+
+        Helpers.ShuffleList(result);
+        return result.Take(required).ToList();
     }
 
-    private void BuildRoundMedium(List<ToyType> types, List<ToyItem> result, int needed)
+    // --------------------------------------
+    // EASY ROUND — FULLY RANDOM
+    // --------------------------------------
+    private void BuildEasy(List<ToyType> types, List<ToyItem> result, int needed)
+    {
+        List<ToyItem> all = new List<ToyItem>();
+
+        foreach (var t in types)
+        {
+            if (t.items != null)
+                all.AddRange(t.items);
+        }
+
+        Helpers.ShuffleList(all);
+
+        for (int i = 0; i < needed && i < all.Count; i++)
+            result.Add(all[i]);
+    }
+
+    // --------------------------------------
+    // MEDIUM/HARD — DUPLICATE TYPE CHANCE
+    // --------------------------------------
+    private void BuildWithDuplicateChance(
+        List<ToyType> types,
+        List<ToyItem> result,
+        int needed,
+        float duplicateChance)
     {
         foreach (var type in types)
         {
             if (result.Count >= needed) break;
-            if (type.items.Count == 0) continue;
+            if (type.items == null || type.items.Count == 0) continue;
 
-            // Always add 1 item
+            // Always pick one item
             ToyItem first = type.items[rng.Next(type.items.Count)];
             result.Add(first);
 
-            // 30% chance add second (if available)
-            if (type.items.Count > 1 && rng.NextDouble() < 0.3f && result.Count < needed)
+            if (result.Count >= needed) break;
+
+            // Chance to pick a second item from SAME type
+            if (rng.NextDouble() < duplicateChance)
             {
-                ToyItem second = type.items[rng.Next(type.items.Count)];
-                if (second != first)
+                if (type.items.Count > 1)
+                {
+                    ToyItem second;
+
+                    // Make sure second != first
+                    do
+                    {
+                        second = type.items[rng.Next(type.items.Count)];
+                    }
+                    while (second == first);
+
                     result.Add(second);
+
+                    if (result.Count >= needed) break;
+                }
             }
         }
     }
 
-    private void BuildRoundHard(List<ToyType> types, List<ToyItem> result, int needed)
+    public List<ToyItem> BuildTutorialRound(LevelType levelType, int requiredCount)
     {
-        foreach (var type in types)
-        {
-            List<ToyItem> list = new List<ToyItem>(type.items);
-            Helpers.ShuffleList(list);
 
-            foreach (var t in list)
-            {
-                if (result.Count >= needed) break;
-                result.Add(t);
-            }
-        }
+        List<ToyType> types = new List<ToyType>(levelType.toyDatabase.variationTypes);
+        Helpers.ShuffleList(types);
+        List<ToyItem> result = new List<ToyItem>();
+        BuildEasy(types, result, requiredCount);
+        Helpers.ShuffleList(result);
+
+        return result.GetRange(0, Mathf.Min(result.Count, requiredCount));
     }
 }

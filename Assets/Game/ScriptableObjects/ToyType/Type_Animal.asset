@@ -13,7 +13,4 @@ MonoBehaviour:
   m_Name: Type_Animal
   m_EditorClassIdentifier: Assembly-CSharp::ToyType
   displayName: Animal
-  items:
-  - {fileID: 11400000, guid: 17f1a6eb5b51f1949ab93282b0985e2d, type: 2}
-  - {fileID: 11400000, guid: 69aa1921dc00e9c4bb929d943a5e005e, type: 2}
-  - {fileID: 11400000, guid: dbf7877f1230e644bb92c522a08b1142, type: 2}
+  items: []

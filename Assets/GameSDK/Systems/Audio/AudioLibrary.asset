@@ -17,25 +17,34 @@ MonoBehaviour:
   sfxEntries:
   - id: 0
     clip: {fileID: 8300000, guid: 6632ef617812e0a40aaf62edb10c75a0, type: 3}
-    volume: 1
+    volume: 0.65
   - id: 1
     clip: {fileID: 8300000, guid: 820ccf6e27b24eb459bb4e0d137f8069, type: 3}
-    volume: 1
+    volume: 0.38
   - id: 2
     clip: {fileID: 8300000, guid: 2ee300e4ea6b99748a4cb77f46591400, type: 3}
-    volume: 1
+    volume: 0.45
   - id: 3
     clip: {fileID: 8300000, guid: 5c011318b5cd89343939694f6e89301f, type: 3}
-    volume: 1
+    volume: 0.23
   - id: 4
     clip: {fileID: 8300000, guid: 6cd8e11cd1e3e5e40816f0bc75af172d, type: 3}
-    volume: 1
+    volume: 0.71
   - id: 5
     clip: {fileID: 8300000, guid: ae72a7b1e92b7284387dc21cc182aeef, type: 3}
-    volume: 1
+    volume: 0.74
   - id: 6
     clip: {fileID: 8300000, guid: f4ecae181d7d9ac47afc3e15c85bfcba, type: 3}
-    volume: 1
+    volume: 0.81
+  - id: 7
+    clip: {fileID: 8300000, guid: 634ed9016ec076a47b1a7e4f1776443c, type: 3}
+    volume: 0.25
+  - id: 8
+    clip: {fileID: 8300000, guid: b6a8dfad2e8871a42a95e09cb9de0e48, type: 3}
+    volume: 0.32
+  - id: 9
+    clip: {fileID: 8300000, guid: 4f1c27904bc07a942b8009de9e3f6c9e, type: 3}
+    volume: 0.57
   bgmEntries:
   - id: 0
     clip: {fileID: 8300000, guid: 8ce25d7fea20cb2438ab26380567a264, type: 3}

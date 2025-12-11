@@ -7,7 +7,11 @@ public class GameConfig : ScriptableObject
     public int RoundBonusScoreMultiplier => roundBonusScoreMultiplier; 
     [Header("Score Settings")]
     [SerializeField] private int scoreEachCorrect = 500;
-    public int ScoreEachCorrect => scoreEachCorrect; 
+    public int ScoreEachCorrect => scoreEachCorrect;
+
+    [Header("Debug")]
+    [SerializeField] private bool showUsedItem = false;
+    public bool ShowUsedItem => showUsedItem;
 
 
 }

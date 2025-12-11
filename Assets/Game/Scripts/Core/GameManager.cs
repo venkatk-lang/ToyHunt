@@ -116,7 +116,7 @@ public class GameManager : GameManagerBase<GameManager>
         else
         {
             remainingItems = roundGenerator.BuildRound(currentRound, levelType);
-            Debug.Log("items");
+            Debug.Log("items " );
         }
 
         Debug.Log("Remaining " + remainingItems.Count);

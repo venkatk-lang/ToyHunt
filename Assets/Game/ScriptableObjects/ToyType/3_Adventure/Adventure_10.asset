@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eaa5d7549a22e241894da41f7ceda8b, type: 3}
+  m_Name: Adventure_10
+  m_EditorClassIdentifier: Assembly-CSharp::ToyItem
+  id: 36
+  sprite: {fileID: 21300000, guid: b9ef4ed3cdf74b341be8041446dac6d4, type: 3}
+  outlineSprite: {fileID: 21300000, guid: 361e1115077e5234289f6700f1c5aaf8, type: 3}

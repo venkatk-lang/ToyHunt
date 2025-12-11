@@ -1,3 +1,4 @@
+using IACGGames;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,6 +100,7 @@ public class WorldGridManager : MonoBehaviour
             ToyCell cell = cells[cellIndex];
 
             cell.SetToy(items[i]);
+            if(SaveDataHandler.Instance.GameConfig.ShowUsedItem)
             cell.Debug(GameManager.Instance.IsNew(cell.Toy));
 
         }

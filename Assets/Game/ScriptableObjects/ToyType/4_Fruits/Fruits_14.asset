@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eaa5d7549a22e241894da41f7ceda8b, type: 3}
+  m_Name: Fruits_14
+  m_EditorClassIdentifier: Assembly-CSharp::ToyItem
+  id: 50
+  sprite: {fileID: 21300000, guid: fb8975ffb81bd6741a378e057001a3c0, type: 3}
+  outlineSprite: {fileID: 21300000, guid: b028314ef18b6b14b9bf1e635e50b6f2, type: 3}
