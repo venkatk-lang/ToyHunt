@@ -10,7 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47ffad5c240d7074ba56edbb42ab47fc, type: 3}
-  m_Name: Type_Leaf
+  m_Name: Type_LeafB
   m_EditorClassIdentifier: Assembly-CSharp::ToyType
   displayName: Leaf
-  items: []
+  items:
+  - {fileID: 11400000, guid: 4243f004cd8c1924ab859cda0e407c18, type: 2}
+  - {fileID: 11400000, guid: 873e6647865226b419f64aba8aedda35, type: 2}
+  - {fileID: 11400000, guid: 1e53e8bd6cb5c9345a35cd2a21ecc835, type: 2}

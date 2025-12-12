@@ -23,7 +23,6 @@ public class GameManager : GameManagerBase<GameManager>
 
     private int maxRounds = 3;
     private int score = 0;
-    public int Score => score;
     private ToyCell wrongItem;
     [SerializeField] TransitionController transitionController;
     [SerializeField] TransitionSettings roundTransitionSettings;
@@ -37,6 +36,7 @@ public class GameManager : GameManagerBase<GameManager>
     public Action OnWrongClicked;
     public Action OnRoundStart;
     public Action OnRoundEnd;
+    [SerializeField] NormalScoreWrapper normalScoreWrapper;
     protected override void Awake()
     {
         base.Awake();
@@ -52,7 +52,7 @@ public class GameManager : GameManagerBase<GameManager>
     public void StartGame(bool isTutorial)
     {
         isTutorialMode = isTutorial;
-
+  
         UIManager.Instance.Show(UIState.GameHUD, 0.2f);
         ChangeState(GameState.Init);
         AudioManager.Instance.PlayBGM(BGMAudioID.Gameplay, true);
@@ -71,6 +71,7 @@ public class GameManager : GameManagerBase<GameManager>
                 gridManager.CreateGridCells(levelType.rows, levelType.cols);
                 currentRound = 1;
                 score = 0;
+                normalScoreWrapper.Initialize();
                 selectedSet.Clear();
                 UIManager.Instance.gameHUD.UpdateScore(score, selectedSet.Count);
                 UIManager.Instance.gameHUD.UpdateRound(currentRound, maxRounds);
@@ -103,7 +104,8 @@ public class GameManager : GameManagerBase<GameManager>
         selectedSet.Clear();
         remainingItems.Clear();
         UIManager.Instance.gameHUD.UpdateRound(currentRound, maxRounds);
-        UIManager.Instance.gameHUD.UpdateScore(0, selectedSet.Count);
+        UIManager.Instance.gameHUD.UpdateScore(score, selectedSet.Count);
+        UpdateScore();
         UIManager.Instance.gameHUD.ShowRoundStart(currentRound, maxRounds, isTutorialMode);
 
         wrongItem = null;
@@ -195,6 +197,7 @@ public class GameManager : GameManagerBase<GameManager>
         remainingItems.Remove(toy);
         OnCorrectClicked?.Invoke();
 
+        normalScoreWrapper.Score.Add(SaveDataHandler.Instance.GameConfig.ScoreEachCorrect);
         score += SaveDataHandler.Instance.GameConfig.ScoreEachCorrect;
         UIManager.Instance.gameHUD.UpdateScore(score, selectedSet.Count);
         AudioManager.Instance.PlaySFX(SFXAudioID.Correct);
@@ -253,8 +256,8 @@ public class GameManager : GameManagerBase<GameManager>
         }
 
         score += GetRoundBonus();
+        normalScoreWrapper.Score.Add(GetRoundBonus(),false);
 
-        currentRound++;
         //show summary panel
         List<ToyItem> selectedToys = selectedSet.ToList();
         if (failEnd)
@@ -274,6 +277,14 @@ public class GameManager : GameManagerBase<GameManager>
 
 
 
+    }
+    public void CompleteRound()
+    {
+        currentRound++;
+    }
+    public void UpdateScore()
+    {
+        normalScoreWrapper.Score.InvokeOnScoreChanged();
     }
     //Call from summary button
     public void StartNextRound()

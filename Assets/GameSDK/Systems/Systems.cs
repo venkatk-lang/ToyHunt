@@ -16,7 +16,7 @@ public class Systems : PersistentSingleton<Systems>
         //from sdkSystem initialize playerdata
 
         //Load GameScene on initialized
-        StartCoroutine(LoadGameSceneDelayed());
+       StartCoroutine(LoadGameSceneDelayed());
     }
     private IEnumerator LoadGameSceneDelayed()
     {

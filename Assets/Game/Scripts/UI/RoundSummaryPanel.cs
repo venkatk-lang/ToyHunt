@@ -69,6 +69,8 @@ public class RoundSummaryPanel : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         AudioManager.Instance.PlaySFX(SFXAudioID.Bonus);
         UIManager.Instance.gameHUD.ShowBonusScore(GameManager.Instance.GetRoundBonus());
+        GameManager.Instance.UpdateScore();
+        GameManager.Instance.CompleteRound();
         panelAnimationC = null;
     }
     void ShowDirect()
@@ -82,7 +84,8 @@ public class RoundSummaryPanel : MonoBehaviour
         {
             item.Highlight(true);
         }
-        UIManager.Instance.gameHUD.ShowBonusScore(GameManager.Instance.GetRoundBonus()); 
+        UIManager.Instance.gameHUD.ShowBonusScore(GameManager.Instance.GetRoundBonus());
+        GameManager.Instance.CompleteRound();
     } 
     private void OnNextButtonClicked()
     {
