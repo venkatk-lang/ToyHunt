@@ -6,8 +6,6 @@ namespace ForestGame
 {
     public class GameHUD : UIPanelBase
     {
-
-        [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private TextMeshProUGUI roundText;
         [SerializeField] private GameObject topBarGO;
         [SerializeField] private TextMeshProUGUI correctText;
@@ -45,9 +43,8 @@ namespace ForestGame
         }
 
 
-        public void UpdateScore(int totalScore, int correctCount)
+        public void UpdateCorrect(int correctCount)
         {
-            scoreText.text = totalScore.ToString();
             correctText.text = correctCount.ToString();
         }
         public void UpdateRound(int currentRound,int totalRound)

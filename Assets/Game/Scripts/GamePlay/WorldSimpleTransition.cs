@@ -1,31 +1,21 @@
+using System;
 using UnityEngine;
 namespace EasyTransition
 {
     public class SimpleWorldTransition : MonoBehaviour
     {
-        public TransitionSettings transitionSettings;
-
         public SpriteMaskAnimator maskSprite;
 
-        bool hasTransitionTriggeredOnce;
-
-        public void AnimateIn()
+        public void AnimateIn(float delay,Action OnMidComplete, Action onComplete)
         {
-            maskSprite.Play();
+            maskSprite.Play(delay, OnMidComplete, () => 
+            {
+                onComplete?.Invoke();
+                Destroy(gameObject);
+            });
         }
 
-        public void AnimateOut()
-        {
-            if (hasTransitionTriggeredOnce) return;
-
-            hasTransitionTriggeredOnce = true;
-
-            float destroyTime = transitionSettings.destroyTime;
-            if (transitionSettings.autoAdjustTransitionTime)
-                destroyTime = destroyTime / transitionSettings.transitionSpeed;
-
-            Destroy(gameObject, destroyTime);
-        }
+       
     }
 
 }
