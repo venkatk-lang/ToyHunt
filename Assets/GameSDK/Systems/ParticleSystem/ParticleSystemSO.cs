@@ -19,7 +19,7 @@ public class ParticleSystemSO : ScriptableObject
         p.Play();
         return p;
     }
-   
-   
+
+  
 
 }
