@@ -23,14 +23,17 @@ namespace IACGGames
 
         public void RestartGame()
         {
+            ResumeGame();
             gameLifecycle?.OnRestart(); 
         }
         public void StartTutorail()
         {
+            ResumeGame();
             gameLifecycle?.OnStartTutorial();
         }
         public void QuitGame()
         {
+            ResumeGame();
             gameLifecycle?.OnQuit();
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;

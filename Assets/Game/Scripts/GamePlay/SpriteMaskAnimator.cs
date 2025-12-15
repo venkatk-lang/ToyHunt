@@ -1,10 +1,11 @@
 using UnityEngine;
+using System.Collections;
+using System;
 
 public enum MaskPlayMode
 {
     Forward,
-    Reverse,
-    PingPong
+    Reverse
 }
 
 public class SpriteMaskAnimator : MonoBehaviour
@@ -13,122 +14,141 @@ public class SpriteMaskAnimator : MonoBehaviour
     public SpriteMask mask;
     public Sprite[] frames;
 
-    [Tooltip("Frames per second (speed).")]
+    [Tooltip("Frames per second")]
     public float fps = 12f;
-
-    [Tooltip("Playback mode.")]
-    public MaskPlayMode playMode = MaskPlayMode.Forward;
-
-    [Tooltip("Loop animation.")]
     public bool loop = true;
 
-    private float timer;
+    private Coroutine playRoutine;
     private int index;
-    private bool isPlaying = false;
-    private int direction = 1;   // +1 forward, -1 backward for reverse or pingpong
+    private int direction = 1;
 
+    float btweenDelay = 0f; 
+    Action onComplete = null;
     private void Awake()
     {
-        if (mask == null) mask = GetComponent<SpriteMask>();
+        if (mask == null)
+            mask = GetComponent<SpriteMask>();
     }
 
-    private void Update()
+    // --------------------------------------------------
+    // PUBLIC CONTROLS
+    // --------------------------------------------------
+
+    public void Play(MaskPlayMode playMode,float betweenDelay,Action OnComplete)
     {
-        if (!isPlaying || frames == null || frames.Length == 0)
-            return;
-
-        timer += Time.deltaTime;
-
-        if (timer >= 1f / fps)
-        {
-            timer = 0f;
-            StepFrame();
-        }
-    }
-
-    private void StepFrame()
-    {
-        index += direction;
-
+        Stop();
+        btweenDelay = betweenDelay;
+        onComplete = OnComplete;
         switch (playMode)
         {
             case MaskPlayMode.Forward:
-                if (index >= frames.Length)
-                {
-                    if (loop) index = 0;
-                    else { isPlaying = false; index = frames.Length - 1; }
-                }
+                direction = 1;
+                index = 0;
                 break;
 
             case MaskPlayMode.Reverse:
-                if (index < 0)
-                {
-                    if (loop) index = frames.Length - 1;
-                    else { isPlaying = false; index = 0; }
-                }
-                break;
-
-            case MaskPlayMode.PingPong:
-                if (index >= frames.Length)
-                {
-                    direction = -1;     // reverse direction
-                    index = frames.Length - 2;
-                }
-                else if (index < 0)
-                {
-                    direction = 1;      // forward
-                    index = 1;
-                }
+                direction = -1;
+                index = frames.Length - 1;
                 break;
         }
 
-        mask.sprite = frames[index];
+        playRoutine = StartCoroutine(PlayCoroutine(playMode));
     }
-
-    // --------------------------------------------------
-    // Public Controls
-    // --------------------------------------------------
-
-    public void Play()
+    public void Play(float betweenDelay, Action onMidComplete, Action onComplete)
     {
-        isPlaying = true;
-        timer = 0f;
-
-        if (playMode == MaskPlayMode.Forward)
-        {
-            direction = 1;
-            index = 0;
-        }
-        else if (playMode == MaskPlayMode.Reverse)
-        {
-            direction = -1;
-            index = frames.Length - 1;
-        }
-
-        mask.sprite = frames[index];
+        Stop(); // stop any existing animation
+        playRoutine = StartCoroutine(PlayForwardReverseCoroutine(betweenDelay, onMidComplete, onComplete));
     }
-
-    public void PlayReverse()
+    private IEnumerator PlayForwardReverseCoroutine(float betweenDelay, Action onMidComplete,Action onComplete)
     {
-        playMode = MaskPlayMode.Reverse;
-        direction = -1;
+        if (frames == null || frames.Length == 0)
+            yield break;
+
+        float delayPerFrame = 1f / fps;
+
+        // --------------------
+        // PLAY FORWARD
+        // --------------------
+        int index = 0;
+        while (index < frames.Length)
+        {
+            mask.sprite = frames[index];
+            yield return new WaitForSeconds(delayPerFrame);
+            index++;
+        }
+        onMidComplete?.Invoke();
+        // --------------------
+        // BETWEEN DELAY
+        // --------------------
+        if (betweenDelay > 0f)
+            yield return new WaitForSeconds(betweenDelay);
+
+        // --------------------
+        // PLAY REVERSE
+        // --------------------
         index = frames.Length - 1;
-        timer = 0f;
-        isPlaying = true;
+        while (index >= 0)
+        {
+            mask.sprite = frames[index];
+            yield return new WaitForSeconds(delayPerFrame);
+            index--;
+        }
 
-        mask.sprite = frames[index];
+        // --------------------
+        // COMPLETE
+        // --------------------
+        onComplete?.Invoke();
     }
-
     public void Stop()
     {
-        isPlaying = false;
+        if (playRoutine != null)
+        {
+            StopCoroutine(playRoutine);
+            playRoutine = null;
+        }
     }
 
     public void SetFrame(int frame)
     {
-        if (frames.Length == 0) return;
+        if (frames == null || frames.Length == 0) return;
 
         index = Mathf.Clamp(frame, 0, frames.Length - 1);
         mask.sprite = frames[index];
+    }
+
+
+    private IEnumerator PlayCoroutine(MaskPlayMode playMode)
+    {
+        if (frames == null || frames.Length == 0)
+            yield break;
+
+        float delay = 1f / fps;
+
+        while (true)
+        {
+            mask.sprite = frames[index];
+            yield return new WaitForSeconds(delay);
+
+            index += direction;
+
+            switch (playMode)
+            {
+                case MaskPlayMode.Forward:
+                    if (index >= frames.Length)
+                    {
+                        if (loop) index = 0;
+                        else yield break;
+                    }
+                    break;
+
+                case MaskPlayMode.Reverse:
+                    if (index < 0)
+                    {
+                        if (loop) index = frames.Length - 1;
+                        else yield break;
+                    }
+                    break;
+            }
+        }
     }
 }

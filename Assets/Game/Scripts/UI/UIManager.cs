@@ -15,7 +15,6 @@ namespace IACGGames
         public MainMenu mainMenu;
         private Dictionary<UIState, UIPanelBase> panels;
         private UIState currentState;
-      //  [SerializeField] TutorialSkipButton tutorialSkipButton;
         protected override void Awake()
         {
             base.Awake();
@@ -32,27 +31,19 @@ namespace IACGGames
             }
         }
 
-        private void Start()
-        {
-            //tutorialSkipButton.Init();
-
-        }
         public void Show(UIState state,float animTime)
         {
           
-            // Hide currently active
             if (panels.ContainsKey(currentState))
                 panels[currentState].Hide();
 
-            // Show new
-           // Debug.Log("Current UI " + state);
             panels[state].Show(animTime);
             currentState = state;
         }
         public void Init()
         {
       
-            Show(UIState.MainMenu, 0); //show level selection first
+            Show(UIState.MainMenu, 0);
      
         }
 

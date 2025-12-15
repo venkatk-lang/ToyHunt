@@ -50,13 +50,10 @@ public class RoundSummaryPanel : MonoBehaviour
 
     IEnumerator AnimatePanel()
     {
-        Debug.Log("Animate start");
         int count = summaryItems.Count;
         for (int i = 0; i < count; i++)
         {
-            Debug.Log("wait");
             yield return new WaitForSeconds(0.2f);
-            Debug.Log("fade");
             AudioManager.Instance.PlaySFX(SFXAudioID.SummaryItem,0.8f,1.2f);
             summaryItems[i].FadeTween();
         }

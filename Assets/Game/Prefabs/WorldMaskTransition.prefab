@@ -45,9 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd6460dca7acfc94c8a410366d7a91ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EasyTransition.SimpleWorldTransition
-  transitionSettings: {fileID: 0}
-  transitionPanelIN: {fileID: 0}
-  transitionPanelOUT: {fileID: 0}
+  maskSprite: {fileID: 4499475084708470891}
 --- !u!1 &6188593449142219849
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,6 +126,7 @@ SpriteMask:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_Sprite: {fileID: 5166822889602443029, guid: 72e1e2584982ed047aea57c42a053ef8, type: 3}
   m_MaskAlphaCutoff: 0.2
   m_FrontSortingLayerID: 0
@@ -196,4 +195,5 @@ MonoBehaviour:
   - {fileID: -6582145605938041098, guid: 72e1e2584982ed047aea57c42a053ef8, type: 3}
   - {fileID: 6586121098334486308, guid: 72e1e2584982ed047aea57c42a053ef8, type: 3}
   - {fileID: 3238834902120763243, guid: 72e1e2584982ed047aea57c42a053ef8, type: 3}
-  frameDuration: 0.1
+  fps: 30
+  loop: 0

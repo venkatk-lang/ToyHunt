@@ -22,9 +22,10 @@ public class GameManager : GameManagerBase<GameManager>
     public int CurrentRound => currentRound;
 
     private int maxRounds = 3;
-    private int score = 0;
+
     private ToyCell wrongItem;
     [SerializeField] TransitionController transitionController;
+    [SerializeField] TransitionWorldController transitionWorldController;
     [SerializeField] TransitionSettings roundTransitionSettings;
     [SerializeField] TransitionSettings stepTransitionSettings;
     [SerializeField] FeedbackPopup feedbackPrefab;
@@ -37,6 +38,8 @@ public class GameManager : GameManagerBase<GameManager>
     public Action OnRoundStart;
     public Action OnRoundEnd;
     [SerializeField] NormalScoreWrapper normalScoreWrapper;
+
+    
     protected override void Awake()
     {
         base.Awake();
@@ -70,10 +73,9 @@ public class GameManager : GameManagerBase<GameManager>
                 ClearFeedback();
                 gridManager.CreateGridCells(levelType.rows, levelType.cols);
                 currentRound = 1;
-                score = 0;
                 normalScoreWrapper.Initialize();
                 selectedSet.Clear();
-                UIManager.Instance.gameHUD.UpdateScore(score, selectedSet.Count);
+                UIManager.Instance.gameHUD.UpdateCorrect(selectedSet.Count);
                 UIManager.Instance.gameHUD.UpdateRound(currentRound, maxRounds);
                 ChangeState(GameState.StartRound);
                 break;
@@ -104,7 +106,7 @@ public class GameManager : GameManagerBase<GameManager>
         selectedSet.Clear();
         remainingItems.Clear();
         UIManager.Instance.gameHUD.UpdateRound(currentRound, maxRounds);
-        UIManager.Instance.gameHUD.UpdateScore(score, selectedSet.Count);
+        UIManager.Instance.gameHUD.UpdateCorrect(selectedSet.Count);
         UpdateScore();
         UIManager.Instance.gameHUD.ShowRoundStart(currentRound, maxRounds, isTutorialMode);
 
@@ -156,24 +158,39 @@ public class GameManager : GameManagerBase<GameManager>
 
             return;
         }
-        transitionController.StartTransition(0.4f, stepTransitionSettings, () => 
+        //transitionWorldController.StartTransition(0.4f, () => 
+        //{
+        //    AudioManager.Instance.PlaySFX(SFXAudioID.Erase);
+        //},
+        //    () =>
+        //    {
+        //        ClearFeedback();
+        //        gridManager.DisplayItems(boxItems);
+        //    }, () =>
+        //    {
+                
+        //        gridManager.ShowAllActiveVisual();
+        //        ChangeState(GameState.WaitForPlayer);
+        //    });
+
+        transitionController.StartTransition(0.4f, stepTransitionSettings,() =>
         {
             AudioManager.Instance.PlaySFX(SFXAudioID.Erase);
         },
-            () =>
-            {
-                ClearFeedback();
-                gridManager.DisplayItems(boxItems);
-            }, () =>
-            {
-                
-                gridManager.ShowAllActiveVisual();
-                ChangeState(GameState.WaitForPlayer);
-            });
+           () =>
+           {
+               ClearFeedback();
+               gridManager.DisplayItems(boxItems);
+           }, () =>
+           {
+
+               gridManager.ShowAllActiveVisual();
+               ChangeState(GameState.WaitForPlayer);
+           });
     }
     public void OnToyCellClicked(ToyCell cell)
     {
-
+        if(GameSDKSystem.Instance.IsPaused) return;
         if (currentState != GameState.WaitForPlayer) return;
         if (cell == null || cell.Toy == null) return;
 
@@ -198,8 +215,7 @@ public class GameManager : GameManagerBase<GameManager>
         OnCorrectClicked?.Invoke();
 
         normalScoreWrapper.Score.Add(SaveDataHandler.Instance.GameConfig.ScoreEachCorrect);
-        score += SaveDataHandler.Instance.GameConfig.ScoreEachCorrect;
-        UIManager.Instance.gameHUD.UpdateScore(score, selectedSet.Count);
+        UIManager.Instance.gameHUD.UpdateCorrect(selectedSet.Count);
         AudioManager.Instance.PlaySFX(SFXAudioID.Correct);
 
         if (remainingItems.Count == 0)
@@ -255,7 +271,6 @@ public class GameManager : GameManagerBase<GameManager>
                 return;
         }
 
-        score += GetRoundBonus();
         normalScoreWrapper.Score.Add(GetRoundBonus(),false);
 
         //show summary panel
@@ -333,11 +348,14 @@ public class GameManager : GameManagerBase<GameManager>
     public override void OnPause()
     {
         // disable input
+        // pause transitions/animations if any
+        Time.timeScale = 0f;
     }
 
     public override void OnResume()
     {
-       // enable input
+        // enable input
+        Time.timeScale = 1f;
     }
 
     public override void OnRestart()

@@ -54,6 +54,7 @@ public class ToyCell : MonoBehaviour
     }
     public void SetHover(bool state)
     {
+        if (GameSDKSystem.Instance.IsPaused) return;
         if (GameManager.Instance.CurrentState != GameState.WaitForPlayer) return;
 
         if (state)
