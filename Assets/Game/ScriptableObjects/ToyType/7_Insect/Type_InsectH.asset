@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 47ffad5c240d7074ba56edbb42ab47fc, type: 3}
-  m_Name: Type_InsectD
+  m_Name: Type_InsectH
   m_EditorClassIdentifier: Assembly-CSharp::ToyType
-  displayName: InsectD
+  displayName: InsectH
   items:
-  - {fileID: 11400000, guid: e74e4c0d592dd4249a37d01fc73e66b5, type: 2}
-  - {fileID: 11400000, guid: 566ae35822b84a34dbfa94f6d593cb92, type: 2}
+  - {fileID: 11400000, guid: 0d7c6a685bcc2ad4a9ac16a676b09936, type: 2}
+  - {fileID: 11400000, guid: 0ebba856f53fff54daca9b6986a40d82, type: 2}
+  - {fileID: 11400000, guid: 5fd5568862746a7488bc926060dc2ffb, type: 2}

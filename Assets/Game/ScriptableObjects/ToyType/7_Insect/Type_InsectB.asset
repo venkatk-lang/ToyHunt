@@ -13,4 +13,7 @@ MonoBehaviour:
   m_Name: Type_InsectB
   m_EditorClassIdentifier: Assembly-CSharp::ToyType
   displayName: InsectB
-  items: []
+  items:
+  - {fileID: 11400000, guid: a95ff724451d8e946bad55362c927474, type: 2}
+  - {fileID: 11400000, guid: e8c05c4e6f105c842a967e026f407592, type: 2}
+  - {fileID: 11400000, guid: 87a6d14e26c56c2419b7907829e5b8a2, type: 2}

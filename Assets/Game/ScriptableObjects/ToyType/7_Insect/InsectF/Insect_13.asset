@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6eaa5d7549a22e241894da41f7ceda8b, type: 3}
-  m_Name: Insect_7
+  m_Name: Insect_13
   m_EditorClassIdentifier: Assembly-CSharp::ToyItem
-  id: 83
-  sprite: {fileID: 21300000, guid: 7ad3ebbbab59e5b4ca2c7fe167a05ada, type: 3}
-  outlineSprite: {fileID: 21300000, guid: b48e7bed8c8c3924f8fe397a96dfb196, type: 3}
+  id: 89
+  sprite: {fileID: 21300000, guid: fc4464b8f24e64c4db987ac5259a4633, type: 3}
+  outlineSprite: {fileID: 21300000, guid: a9c0354fdf2a3804bbbb22f944dcbcf9, type: 3}
