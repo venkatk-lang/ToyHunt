@@ -1,3 +1,4 @@
+using UnityEngine;
 namespace IACGGames
 {
     public class GameSDKSystem : Singleton<GameSDKSystem>
@@ -37,8 +38,6 @@ namespace IACGGames
             gameLifecycle?.OnQuit();
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
-#else
-            Application.Quit();
 #endif
         }
 

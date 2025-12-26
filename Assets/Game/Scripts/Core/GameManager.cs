@@ -286,7 +286,7 @@ public class GameManager : GameManagerBase<GameManager>
               () =>
               {
                   ClearFeedback();
-                  UIManager.Instance.gameHUD.ShowRoundSummary(selectedToys, wrongItem != null ? wrongItem.Toy.id : -1, currentRound > maxRounds);
+                  UIManager.Instance.gameHUD.ShowRoundSummary(selectedToys, wrongItem != null ? wrongItem.Toy.id : -1, currentRound == maxRounds);
                   gridManager.ClearAllItems();
               },null);
 
